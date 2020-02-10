@@ -488,7 +488,7 @@ int main(int argc, char** argv) {
 
     write(client_socket, unit_port, strlen(unit_port));
 
-    reporter_init(reg_ip, SBC_CAR_UNIT_PORT);
+    reporter_init(reg_ip, atoi(SBC_CAR_UNIT_PORT));
 
 	int xlgyro_sock = 0, xlgyro_operating = 0, xlgyro_ret = 0;
 	struct sockaddr_in xlgyro_sockaddr;
@@ -668,7 +668,7 @@ int main(int argc, char** argv) {
 #endif
             gen_json = generate_json(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle);
 
-            handle_reports(gen_json, reg_ip, 40701);
+            handle_reports(gen_json, reg_ip, atoi(SBC_CAR_UNIT_PORT));
 
             free(gen_json);
 		}
