@@ -72,7 +72,7 @@ void netw_main(double lat, double lon, double speed, double course)
 
     write(client_socket, unit_port, strlen(unit_port));
 
-    gen_json = generate_json(1, "ambulance", lat, lon, speed, course);
+    gen_json = generate_json_car(1, "ambulance", lat, lon, speed, course, 0, 0, 0, 0);
     printf("gen_json = %s\n", gen_json);
 
     reporter_init(reg_ip, reg_port);
