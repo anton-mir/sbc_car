@@ -47,6 +47,7 @@ along with obdgpslogger.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <string.h>
 #include "xlgyro_data_processor.h"
 
 #ifdef HAVE_GPSD
@@ -666,8 +667,22 @@ int main(int argc, char** argv) {
 				if(xlgyro_obstacle)printf("\n\nObstacle!\n\n");
 			}
 #endif
-            //gen_json = generate_json_car(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle, 0, 0, 0, 0);
-            gen_json = generate_json_box(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			if (argv[1] == NULL)
+			{
+				fprintf(stderr, "\033[31mInvalid command-line argument!!!\n");
+            	free(gen_json);
+            	return 1;
+			}
+			if (!strncmp(argv[1], "car", strlen("car")))
+            	gen_json = generate_json_car(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle, 0, 0, 0, 0);
+            else if (!strncmp(argv[1], "box", strlen("box")))
+            	gen_json = generate_json_box(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            else
+            {
+            	fprintf(stderr, "\033[31mInvalid command-line argument!!!\n");
+            	free(gen_json);
+            	return 1;
+            }
             handle_reports(gen_json, reg_ip, atoi(SBC_CAR_UNIT_PORT));
 
             free(gen_json);
