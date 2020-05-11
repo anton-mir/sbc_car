@@ -670,7 +670,7 @@ int main(int argc, char** argv) {
 			if (argv[1] == NULL)
 			{
 				fprintf(stderr, "\033[31mInvalid command-line argument!!!\n");
-            	free(gen_json);
+            	free(gen_json); 
             	return 1;
 			}
 			if (!strncmp(argv[1], "car", strlen("car")))
