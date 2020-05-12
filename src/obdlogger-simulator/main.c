@@ -1,11 +1,14 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "console_helper.h"
 #include "xlgyro_data_helper.h"
 #include "xlgyro_data_simulator.h"
 #include "server.h"
+
+static bool simulation_running = false;
 
 static int menu()
 {
@@ -107,6 +110,7 @@ static void start_simulation(XLGYRO_PACKET_PARAMETERS_S *parameters)
 		#ifdef DEBUG_LOG
 		print_green("Server start successed!");
 		#endif
+		simulation_running = true;
 	}
 
 	if (create_simulator(parameters) < 0) 
@@ -120,12 +124,33 @@ static void start_simulation(XLGYRO_PACKET_PARAMETERS_S *parameters)
 		#ifdef DEBUG_LOG
 		print_green("Simulator start successed!");
 		#endif
+		simulation_running &= true;
 	}
 }
 static void stop_simulation()
 {
-	close_server();
-	close_simulator();
+	if (close_server() < 0)
+	{
+		#ifdef DEBUG_LOG
+		print_red("Server stop failed!");
+		#endif
+	}
+	else
+	{
+		simulation_running = false;
+	}
+	
+	if (close_simulator() < 0)
+	{
+		#ifdef DEBUG_LOG
+		print_red("Simulator stop failed!");
+		#endif
+	}
+	else
+	{
+		simulation_running &= false;
+	}
+	
 }
 
 int main(int argc, char *argv[])
@@ -145,6 +170,16 @@ int main(int argc, char *argv[])
 	while (true)
     {
 		clear_all();
+
+		if (simulation_running)
+		{
+			print_green("\n\t\u2B24 Simulation is running!\n");
+		}
+		else
+		{
+			print_red("\n\t\u2B24 Simulation isn't running!\n");
+		}
+
         print_blue("***DEFAULT INPUT PARAMETERS***\n");
         printf("XLGYRO_TRAILER_SIZE:\t");
         printf("%d\n", parameters.trailer_size);

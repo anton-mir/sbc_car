@@ -153,6 +153,7 @@ static void *server_handler() {
 
 int create_server()
 {
+    if (server_run == true) return -2;
     if (pthread_create(&s_thread, NULL, server_handler, NULL) < 0) {
 
         #ifdef DEBUG_LOG

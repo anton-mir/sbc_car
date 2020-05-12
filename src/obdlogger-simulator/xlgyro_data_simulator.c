@@ -24,6 +24,7 @@ static void *simulator_handler(void *parameters)
 
 int create_simulator(XLGYRO_PACKET_PARAMETERS_S *parameters)
 {
+    if (simulator_run == true) return -2;
     if (pthread_create(&s_thread, NULL, simulator_handler, parameters) < 0) {
 
         #ifdef DEBUG_LOG
