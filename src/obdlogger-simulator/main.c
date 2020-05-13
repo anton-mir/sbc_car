@@ -19,13 +19,13 @@ static int menu()
 	printf("\nINPUT: ");
     scanf("%d", &variant);
 
-    //data entry verification
-    while (variant < 1 || variant > 3)
-    {
-        printf("\nIncorect input. Try again: ");
-        scanf("%d", &variant);
-    }
-    return variant;
+	//data entry verification
+	while (scanf("%d", &variant) <= 0 || variant < 1 || variant > 3)
+	{
+		scanf("%*s");
+		printf("\nIncorect input. Try again: ");
+	}
+	return variant;
 }
 
 static void menu_change(XLGYRO_PACKET_PARAMETERS_S *parameters)
@@ -45,12 +45,13 @@ static void menu_change(XLGYRO_PACKET_PARAMETERS_S *parameters)
 	printf("\nINPUT: ");
     scanf("%d", &variant_change);
 
-    //data entry verification
-    while (variant_change < 1 || variant_change > 8)
-    {
-        printf("\nIncorect input. Try again: ");
-        scanf("%d", &variant_change);
-    }
+	//data entry verification
+	while (scanf("%d", &variant_change) <= 0 || variant_change < 1 || variant_change > 8)
+	{
+		scanf("%*s");
+		printf("\nIncorect input. Try again: ");
+		scanf("%d", &variant_change);
+	}
 
     clear_all();
 

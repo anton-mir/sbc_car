@@ -64,13 +64,13 @@ int menu()
     printf("\n1. Change parameters: \n");
     printf("2. Start simulation: \n");
     printf("3. Exit: \n");
-    scanf("%d", &variant);
+
 
     //data entry verification
-    while (variant < 1 || variant >3)
+    while (scanf("%d", &variant) <= 0 || variant < 1 || variant > 3)
     {
+        scanf("%*s");
         printf("Incorect input. Try again: ");
-        scanf("%d", &variant);
     }
     return variant;
 }
@@ -92,8 +92,9 @@ void menu_change()
     scanf("%d", &variant_change);
 
     //data entry verification
-    while (variant_change < 1 || variant_change > 8)
+    while (scanf("%d", &variant_change) <= 0 || variant_change < 1 || variant_change > 8)
     {
+        scanf("%*s");
         printf("Incorect input. Try again: ");
         scanf("%d", &variant_change);
     }
