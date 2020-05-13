@@ -148,6 +148,7 @@ IF("${CMAKE_SYSTEM}" MATCHES "Windows")
 ELSE("${CMAKE_SYSTEM}" MATCHES "Windows")
 	ADD_SUBDIRECTORY(src/obdcomm/)
 	ADD_SUBDIRECTORY(src/logger/)
+	ADD_SUBDIRECTORY(src/obdlogger-simulator)
 	ADD_SUBDIRECTORY(src/gui/)
 ENDIF("${CMAKE_SYSTEM}" MATCHES "Windows")
 
