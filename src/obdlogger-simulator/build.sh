@@ -44,11 +44,6 @@ cmake ${CMAKE_OPTS}
 
 cd ${BUILD_DIR} && make VERBOSE=1 -j"$(nproc)"
 
-cp ${BUILD_DIR}/bin/* ${BIN_DIR}
-
-if [ -d "${BUILD_DIR}/bin" ]
-then
-    rm -rf ${BUILD_DIR}/bin
-fi
+cp ${BUILD_DIR}/obdlogger-simulator ${BIN_DIR}
 
 exit 0
