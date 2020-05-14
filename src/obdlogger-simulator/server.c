@@ -137,7 +137,7 @@ static void *server_handler() {
 int create_server()
 {
     if (server_run == true) return -2;
-    if (pthread_create(&s_thread, NULL, server_handler, NULL) < 0) {
+    if (pthread_create(&s_thread, NULL, server_handler, NULL) == 0) {
 
         #ifdef DEBUG_LOG
         print_red("Thread create failed!");
@@ -163,7 +163,7 @@ int close_server()
     if (server_run == false) return -1;
     close(main_socket);
 
-    if (pthread_cancel(s_thread) < 0) {
+    if (pthread_cancel(s_thread) == 0) {
 
         #ifdef DEBUG_LOG
         print_red("Thread cancel failed!");
@@ -179,7 +179,7 @@ int close_server()
         #endif
     }
 
-    if (pthread_join(s_thread, NULL) < 0) {
+    if (pthread_join(s_thread, NULL) == 0) {
         
         #ifdef DEBUG_LOG
         print_red("Thread join failed!");

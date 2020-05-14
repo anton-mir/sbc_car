@@ -25,7 +25,7 @@ static void *simulator_handler(void *parameters)
 int create_simulator(XLGYRO_PACKET_PARAMETERS_S *parameters)
 {
     if (simulator_run == true) return -2;
-    if (pthread_create(&s_thread, NULL, simulator_handler, parameters) < 0) {
+    if (pthread_create(&s_thread, NULL, simulator_handler, parameters) == 0) {
 
         #ifdef DEBUG_LOG
         print_red("Thread create failed!");
@@ -48,7 +48,7 @@ int create_simulator(XLGYRO_PACKET_PARAMETERS_S *parameters)
 int close_simulator()
 {
     if (simulator_run == false) return -1;
-    if (pthread_cancel(s_thread) < 0) {
+    if (pthread_cancel(s_thread) == 0) {
 
         #ifdef DEBUG_LOG
         print_red("Thread cancel failed!");
@@ -64,7 +64,7 @@ int close_simulator()
         #endif
     }
 
-    if (pthread_join(s_thread, NULL) < 0) {
+    if (pthread_join(s_thread, NULL) == 0) {
         
         #ifdef DEBUG_LOG
         print_red("Thread join failed!");
