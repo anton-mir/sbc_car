@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 project(obdlogger-simulator)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lpthread")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 file(GLOB OBDLOGGER_SIMULATOR_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.c")
@@ -13,3 +12,5 @@ find_package(Threads REQUIRED)
 add_executable(${PROJECT_NAME} ${OBDLOGGER_SIMULATOR_SRCS} ${OBDLOGGER_SIMULATOR_HDRS})
 
 target_link_libraries(${PROJECT_NAME} Threads::Threads)
+
+INSTALL(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
