@@ -14,7 +14,7 @@ static int main_socket = 0;
 static int client_fd = 0;
 static pthread_t s_thread;
 static void *server_handler() {
-    int client_socket, socket_options;
+    int client_socket;
     struct sockaddr_in server, client;
 
     main_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -33,23 +33,6 @@ static void *server_handler() {
         print_green("Socket start successed!");
         #endif
     }
-
-    /*if (setsockopt(main_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&socket_options, sizeof(socket_options))) {
-
-        #ifdef DEBUG_LOG
-        print_red("Socket option set failed!");
-        perror("ERROR");
-        #endif
-
-        close(main_socket);
-        return NULL;
-    }
-    else 
-    {
-        #ifdef DEBUG_LOG
-        print_green("Socket option set successed!");
-        #endif
-    }*/
 
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = inet_addr(HOST);

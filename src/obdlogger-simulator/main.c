@@ -17,7 +17,6 @@ static int menu()
     printf("2. Start simulation: \n");
     printf("3. Exit: \n");
 	printf("\nINPUT: ");
-    scanf("%d", &variant);
 
 	//data entry verification
 	while (scanf("%d", &variant) <= 0 || variant < 1 || variant > 3)
@@ -43,7 +42,6 @@ static void menu_change(XLGYRO_PACKET_PARAMETERS_S *parameters)
     printf("7. Z_AXIS_THD_LO\n");
     printf("8. ROAD_QUALITY\n");
 	printf("\nINPUT: ");
-    scanf("%d", &variant_change);
 
 	//data entry verification
 	while (scanf("%d", &variant_change) <= 0 || variant_change < 1 || variant_change > 8)
@@ -95,12 +93,23 @@ static void menu_change(XLGYRO_PACKET_PARAMETERS_S *parameters)
 				scanf("%d", (int*)&parameters->quality);
 			}
 			break;
+		default:
+			print_default("Unknown option.");
+			break;
     }
 }
 
 static void start_simulation(XLGYRO_PACKET_PARAMETERS_S *parameters)
 {
-    if (create_server() < 0) 
+	int server_status = create_server();
+	int simulator_status = create_simulator(parameters);
+
+	if (server_status >= 0 && simulator_status >= 0)
+	{
+		simulation_running = true;
+	}
+
+    if (server_status < 0) 
 	{
 		#ifdef DEBUG_LOG
 		print_red("Server start failed!");
@@ -111,10 +120,9 @@ static void start_simulation(XLGYRO_PACKET_PARAMETERS_S *parameters)
 		#ifdef DEBUG_LOG
 		print_green("Server start successed!");
 		#endif
-		simulation_running = true;
 	}
 
-	if (create_simulator(parameters) < 0) 
+	if (simulator_status < 0) 
 	{
 		#ifdef DEBUG_LOG
 		print_red("Simulator start failed!");
@@ -125,39 +133,35 @@ static void start_simulation(XLGYRO_PACKET_PARAMETERS_S *parameters)
 		#ifdef DEBUG_LOG
 		print_green("Simulator start successed!");
 		#endif
-		simulation_running &= true;
 	}
 }
 static void stop_simulation()
 {
-	if (close_server() < 0)
+	int server_status = close_server();
+	int simulator_status = close_simulator();
+
+	if (server_status >= 0 && simulator_status >= 0)
+	{
+		simulation_running = false;
+	}
+
+	if (server_status < 0)
 	{
 		#ifdef DEBUG_LOG
 		print_red("Server stop failed!");
 		#endif
 	}
-	else
-	{
-		simulation_running = false;
-	}
-	
-	if (close_simulator() < 0)
+	if (simulator_status < 0)
 	{
 		#ifdef DEBUG_LOG
 		print_red("Simulator stop failed!");
 		#endif
 	}
-	else
-	{
-		simulation_running &= false;
-	}
 	
 }
 
 int main(int argc, char *argv[])
-{
-	CONSOLE_SIZE_S size = size_of_console();
-	
+{	
 	XLGYRO_PACKET_PARAMETERS_S parameters = { 0 };
 	parameters.quality = NORMAL;
 	parameters.trailer_size = XLGYRO_TRAILER_SIZE;
@@ -212,6 +216,9 @@ int main(int argc, char *argv[])
 			case 3:
 				stop_simulation();
 				return 0;
+			default:
+				print_default("Unknown option.");
+				break;
         }
     }
 	return 0;
