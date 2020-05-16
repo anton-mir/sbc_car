@@ -1,3 +1,17 @@
+
+#### How to switch between car and box?
+The user can choose which device to get data from: car or stable box. By default ```car``` is used, but you can add argument ```box``` when you run sbc-car module to use it for box.
+
+Example for car:
+```
+cd ~/src/GL-SMARTCITY/sbc-platform/build/src/sbc-car/bin && ./obdgpslogger
+```
+Example for box:
+
+```
+cd ~/src/GL-SMARTCITY/sbc-platform/build/src/sbc-car/bin && ./obdgpslogger box
+```
+#
 OBDII/GPS Logging Tool
 
 
