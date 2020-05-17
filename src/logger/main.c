@@ -212,7 +212,7 @@ int main(int argc, char** argv) {
 				break;
 #endif //OBDPLATFORM_POSIX
 			case 'c':
-				samplecount = atoi(optarg);
+				samplecount = strtol(optarg, (char **)NULL, 10);
 				break;
 			case 'b':
 				requested_baud = strtol(optarg, (char **)NULL, 10);
