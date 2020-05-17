@@ -1,3 +1,12 @@
+char *generate_json(int id,
+        char *skin_name,
+        double lat,
+        double lon,
+        int speed,
+        double course,
+        int rpm,
+        int pit);
+
 char *generate_json_car(int id,
 			char *skin_name,
  			double lat,
