@@ -74,11 +74,8 @@ along with obdgpslogger.  If not, see <http://www.gnu.org/licenses/>.
 #include "sqlite3.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <fcntl.h>
-#include <time.h>
 #include <getopt.h>
-#include <unistd.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
