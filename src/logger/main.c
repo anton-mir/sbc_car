@@ -549,6 +549,7 @@ int main(int argc, char** argv) {
 		if(-1 < obd_serial_port) {
 			// Get all the OBD data
 			for(i=0; i<obdnumcols-1; i++) {
+				//float val;
 				float val;
 				unsigned int cmdid = obdcmds_mode1[cmdlist[i]].cmdid;
 				int numbytes = enable_optimisations?obdcmds_mode1[cmdlist[i]].bytes_returned:0;
@@ -556,7 +557,7 @@ int main(int argc, char** argv) {
 
 				obdstatus = getobdvalue(obd_serial_port, cmdid, &val, numbytes, conv);
 				if(OBD_SUCCESS == obdstatus) {
-					if(cmdid == 0x0c)rpm = val;
+					if(cmdid == 0x0c)rpm = (int)val;
 					if(cmdid == 0x0d)obd_speed = 7;
 #ifdef HAVE_DBUS
 					obddbussignalpid(&obdcmds_mode1[cmdlist[i]], val);
