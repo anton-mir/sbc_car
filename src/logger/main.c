@@ -665,11 +665,18 @@ int main(int argc, char** argv) {
 				if(xlgyro_obstacle)printf("\n\nObstacle!\n\n");
 			}
 #endif
-			if (argc > 1 && !strncmp(argv[1], "box", strlen("box")))
-            	gen_json = generate_json_box(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			if (argc > 1 && !strncmp(argv[2], "box", strlen("box")))
+			{
+				gen_json = generate_json_box(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			}
+			else if (argc > 1 && !strncmp(argv[2], "car", strlen("car")))
+			{
+            	gen_json = generate_json_car(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle, 0, 0, 0, 0);
+			}
             else
-                gen_json = generate_json(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle);
-            	//gen_json = generate_json_car(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle, 0, 0, 0, 0);
+            {
+            	gen_json = generate_json(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle);
+            }
             
             handle_reports(gen_json, reg_ip, atoi(SBC_CAR_UNIT_PORT));
 
@@ -797,6 +804,7 @@ void printhelp(const char *argv0) {
 				"   [-l|--serial-log <filename>]\n"
 				"   [-a|--samplerate [1]]\n"
 				"   [-d|--db <" OBD_DEFAULT_DATABASE ">]\n"
+				"	[-d| --airc device <car/box>]\n"
 				"   [-v|--version] [-h|--help]\n", argv0);
 }
 
