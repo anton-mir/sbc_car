@@ -1,15 +1,19 @@
 
-#### How to switch between car and box?
-The user can choose which device to get data from: car or stable box. By default ```car``` is used, but you can add argument ```box``` when you run sbc-car module to use it for box.
+#### How to switch data set?
+The user can choose which data set to run module for: car without information about air, car AirC device or box AirC device. By default you get car without information about air, but you can add argument ```-d box``` when you run sbc-car module for AirC box device or ```-d car``` to use module for car with AirC device.
 
-Example for car:
+For car without information about air:
 ```
 cd ~/src/GL-SMARTCITY/sbc-platform/build/src/sbc-car/bin && ./obdgpslogger
 ```
-Example for box:
+For car AirC device:
+```
+cd ~/src/GL-SMARTCITY/sbc-platform/build/src/sbc-car/bin && ./obdgpslogger -d car
+```
+For box AirC divice:
 
 ```
-cd ~/src/GL-SMARTCITY/sbc-platform/build/src/sbc-car/bin && ./obdgpslogger box
+cd ~/src/GL-SMARTCITY/sbc-platform/build/src/sbc-car/bin && ./obdgpslogger -d box
 ```
 #
 OBDII/GPS Logging Tool
