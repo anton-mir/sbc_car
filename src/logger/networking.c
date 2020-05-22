@@ -54,30 +54,3 @@ void handle_reports(const char *message, const char *ip, const int port)
     printf("handleReports: %15s:%d <- %s\n", ip, port, message);
     usleep(UPD_TIME_MS * 1000);
 }
-
-#if 0
-void netw_main(double lat, double lon, double speed, double course)
-{
-    int client_socket = 0;
-    const char *reg_ip = "127.0.0.1";
-    const int reg_port = 40880;
-    const char *unit_port = "40701";
-    char *gen_json;
-
-    netw_init(reg_port);
-    open_reg_serv(reg_port);
-
-    wait_on_any_unit_req(&client_socket);
-    printf("client_socket = %d\n", client_socket);
-
-    write(client_socket, unit_port, strlen(unit_port));
-
-    gen_json = generate_json(1, "ambulance", lat, lon, speed, course);
-    printf("gen_json = %s\n", gen_json);
-
-    reporter_init(reg_ip, reg_port);
-    handle_reports(gen_json, reg_ip, reg_port);
-
-    free(gen_json);
-}
-#endif

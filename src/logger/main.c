@@ -47,6 +47,7 @@ along with obdgpslogger.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <string.h>
 #include "xlgyro_data_processor.h"
 
 #ifdef HAVE_GPSD
@@ -61,8 +62,8 @@ along with obdgpslogger.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SBC_CAR_DEF_IP      "127.0.0.1"
 #define SBC_CAR_REG_PORT    40880
-#define SBC_CAR_UNIT_PORT   "40701"
-
+#define SBC_CAR_UNIT_PORT   40701
+char unit_port[5];
 #define SBC_CAR_ID          (1)
 #define SBC_CAR_SKIN        "car_white"
 
@@ -73,11 +74,8 @@ along with obdgpslogger.  If not, see <http://www.gnu.org/licenses/>.
 #include "sqlite3.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <fcntl.h>
-#include <time.h>
 #include <getopt.h>
-#include <unistd.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -148,6 +146,15 @@ int main(int argc, char** argv) {
 	/// Serial log filename
 	char *seriallogname = NULL;
 
+	///Json generation type
+    typedef enum json_type
+    {
+        no_type = 0,
+        car,
+        box
+    } airc_json_type;
+    airc_json_type current_json_type = no_type;
+
 #ifdef OBDPLATFORM_POSIX
 	/// Daemonise
 	int daemonise = 0;
@@ -214,7 +221,7 @@ int main(int argc, char** argv) {
 				break;
 #endif //OBDPLATFORM_POSIX
 			case 'c':
-				samplecount = atoi(optarg);
+				samplecount = (int)strtol(optarg, (char **)NULL, 10);
 				break;
 			case 'b':
 				requested_baud = strtol(optarg, (char **)NULL, 10);
@@ -228,6 +235,11 @@ int main(int argc, char** argv) {
 				}
 				databasename = strdup(optarg);
 				break;
+            case 'x':
+                if (!strncmp(optarg, "car", strlen("car"))) current_json_type = car;
+                else if (!strncmp(optarg, "box", strlen("box"))) current_json_type = box;
+                else current_json_type = no_type;
+                break;
 			case 'i':
 				if(NULL != log_columns) {
 					free(log_columns);
@@ -235,7 +247,7 @@ int main(int argc, char** argv) {
 				log_columns = strdup(optarg);
 				break;
 			case 'a':
-				samplespersecond = atoi(optarg);
+				samplespersecond = (int)strtol(optarg, (char **)NULL, 10);
 				break;
 			case 'l':
 				enable_seriallog = 1;
@@ -477,7 +489,6 @@ int main(int argc, char** argv) {
     int client_socket = 0;
     const char *reg_ip = SBC_CAR_DEF_IP;
     const int reg_port = SBC_CAR_REG_PORT;
-    const char *unit_port = SBC_CAR_UNIT_PORT;
     char *gen_json;
 
     netw_init(reg_port);
@@ -485,10 +496,10 @@ int main(int argc, char** argv) {
 
     wait_on_any_unit_req(&client_socket);
     printf("client_socket = %d\n", client_socket);
-
+    sprintf (unit_port, "%d", SBC_CAR_UNIT_PORT);
     write(client_socket, unit_port, strlen(unit_port));
 
-    reporter_init(reg_ip, atoi(SBC_CAR_UNIT_PORT));
+    reporter_init(reg_ip, SBC_CAR_UNIT_PORT);
 
 	int xlgyro_sock = 0, xlgyro_operating = 0, xlgyro_ret = 0;
 	struct sockaddr_in xlgyro_sockaddr;
@@ -551,6 +562,7 @@ int main(int argc, char** argv) {
 		if(-1 < obd_serial_port) {
 			// Get all the OBD data
 			for(i=0; i<obdnumcols-1; i++) {
+				//float val;
 				float val;
 				unsigned int cmdid = obdcmds_mode1[cmdlist[i]].cmdid;
 				int numbytes = enable_optimisations?obdcmds_mode1[cmdlist[i]].bytes_returned:0;
@@ -558,7 +570,7 @@ int main(int argc, char** argv) {
 
 				obdstatus = getobdvalue(obd_serial_port, cmdid, &val, numbytes, conv);
 				if(OBD_SUCCESS == obdstatus) {
-					if(cmdid == 0x0c)rpm = val;
+					if(cmdid == 0x0c)rpm = (int)val;
 					if(cmdid == 0x0d)obd_speed = 7;
 #ifdef HAVE_DBUS
 					obddbussignalpid(&obdcmds_mode1[cmdlist[i]], val);
@@ -666,9 +678,20 @@ int main(int argc, char** argv) {
 				if(xlgyro_obstacle)printf("\n\nObstacle!\n\n");
 			}
 #endif
-            gen_json = generate_json(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle);
+            switch (current_json_type) {
+			    case car:
+                    gen_json = generate_json_car(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle, 0, 0, 0, 0);
+                    break;
+                case box:
+                        gen_json = generate_json_box(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                    break;
+                case no_type:
+                default:
+                    gen_json = generate_json(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle);
+                    break;
+            }
 
-            handle_reports(gen_json, reg_ip, atoi(SBC_CAR_UNIT_PORT));
+            handle_reports(gen_json, reg_ip, SBC_CAR_UNIT_PORT);
 
             free(gen_json);
 		}
@@ -779,6 +802,7 @@ static int obddaemonise() {
 
 void printhelp(const char *argv0) {
 	printf("Usage: %s [params]\n"
+                "   [-x|--airc-device <car/box>]\n"
 				"   [-s|--serial <" OBD_DEFAULT_SERIALPORT ">]\n"
 				"   [-c|--count <infinite>]\n"
 				"   [-i|--log-columns <" OBD_DEFAULT_COLUMNS ">]\n"

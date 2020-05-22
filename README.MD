@@ -1,3 +1,21 @@
+
+#### How to switch data set?
+The user can choose which data set to run module for: car without information about air, car AirC device or box AirC device. By default you get car without information about air, but you can add argument ```--airc-device box``` when you run sbc-car module for AirC box device or ```--airc-device car``` to use module for car with AirC device.
+
+For car without information about air:
+```
+cd ~/src/GL-SMARTCITY/sbc-platform/build/src/sbc-car/bin && ./obdgpslogger
+```
+For car AirC device:
+```
+cd ~/src/GL-SMARTCITY/sbc-platform/build/src/sbc-car/bin && ./obdgpslogger --airc-device car
+```
+For box AirC divice:
+
+```
+cd ~/src/GL-SMARTCITY/sbc-platform/build/src/sbc-car/bin && ./obdgpslogger --airc-device box
+```
+#
 OBDII/GPS Logging Tool
 
 
