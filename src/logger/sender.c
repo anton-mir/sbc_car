@@ -17,7 +17,7 @@ char *generate_json(int id, char *skin_name, double lat, double lon, int speed, 
     json_append_member(state, "rpm", json_mknumber(rpm));
     json_append_member(state, "special", json_mkbool(0));
     json_append_member(state, "gear", json_mknumber(1));
-    json_append_member(state, "laneId", json_mknumber(0.0));
+    json_append_member(state, "laneid", json_mknumber(0.0));
     json_append_member(state, "pit", json_mknumber(pit));
 
     json_append_member(message, "status", json_mkstring("Moving"));
@@ -46,7 +46,7 @@ char *generate_json_car(int id, char *skin_name, double lat, double lon, int spe
     json_append_member(state, "rpm", json_mknumber(rpm));
     json_append_member(state, "special", json_mkbool(0));
     json_append_member(state, "gear", json_mknumber(1));
-    json_append_member(state, "laneId", json_mknumber(0.0));
+    json_append_member(state, "laneid", json_mknumber(0.0));
     json_append_member(state, "pit", json_mknumber(pit));
 
     json_append_member(state, "temp", json_mknumber(temp));
