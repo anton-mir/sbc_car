@@ -1,6 +1,6 @@
 
 #### How to switch data set?
-The user can choose which data set to run module for: car without information about air, car AirC device or box AirC device. By default you get car without information about air, but you can add argument ```-d box``` when you run sbc-car module for AirC box device or ```-d car``` to use module for car with AirC device.
+The user can choose which data set to run module for: car without information about air, car AirC device or box AirC device. By default you get car without information about air, but you can add argument ```--airc-device box``` when you run sbc-car module for AirC box device or ```--airc-device car``` to use module for car with AirC device.
 
 For car without information about air:
 ```
