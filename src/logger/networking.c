@@ -51,6 +51,6 @@ void netw_init(const int port)
 void handle_reports(const char *message, const char *ip, const int port)
 {
     report(message, port);
-    printf("handleReports: %15s:%d <- %s\n", ip, port, message);
+    printf("handleReports: %15s:%d <- %s\n\n", ip, port, message);
     usleep(UPD_TIME_MS * 1000);
 }

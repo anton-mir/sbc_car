@@ -82,7 +82,7 @@ void report(const char *report, const int port)
         if (sendto(sock, report, strlen(report), 0, (struct sockaddr*)&client, sizeof(client)) < 0) {
             printf("FAIL to send broadcast message %s:%d socket, error: %d\n", inet_ntoa(client.sin_addr), port, errno);
         } else {
-            printf("BROADCAST SENT SUCCESSFULLY");
+            printf("BROADCAST SENT SUCCESSFULLY:\n");
         }
     }
 }

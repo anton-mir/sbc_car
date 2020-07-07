@@ -26,15 +26,12 @@ along with obdgpslogger.  If not, see <http://www.gnu.org/licenses/>.
 #include <gps.h>
 
 struct gps_data_t *opengps(char *server, char *port) {
-	struct gps_data_t *g = gps_open(server,port);
+	struct gps_data_t data;
+    struct gps_data_t *g = &data;
+	int result = gps_open(server,port, g);
 	if(NULL == g)
 		return NULL;
-
-#ifdef HAVE_GPSD_V3
-	gps_stream(g, WATCH_ENABLE|WATCH_NEWSTYLE, NULL);
-#else
-	gps_query(g, "o");
-#endif //HAVE_GPSD_V3
+	result = gps_stream(g, WATCH_ENABLE|WATCH_NEWSTYLE, NULL);
 
 	return g;
 }
@@ -58,9 +55,9 @@ int getgpsposition(struct gps_data_t *g, double *lat, double *lon, double *alt, 
 		count = select(g->gps_fd + 1, &fds, NULL, NULL, &timeout);
 		if(count > 0) {
 #ifdef HAVE_GPSD_V3
-			gps_poll(g);
-#else
-			gps_query(g, "o");
+			gps_read(g, NULL, 0);
+//#else
+			gps_send(g, "o");
 #endif //HAVE_GPSD_V3
 		}
 	} while (count > 0);
@@ -77,7 +74,7 @@ int getgpsposition(struct gps_data_t *g, double *lat, double *lon, double *alt, 
 		*lon = g->fix.longitude;
 		*course = g->fix.track;
 		*speed = g->fix.speed;
-		*gpstime = g->fix.time;
+		*gpstime = g->fix.time.tv_sec;
 		return 0;
 	}
 	if(g->fix.mode == MODE_3D) {
@@ -86,7 +83,7 @@ int getgpsposition(struct gps_data_t *g, double *lat, double *lon, double *alt, 
 		*alt = g->fix.altitude;
 		*course = g->fix.track;
 		*speed = g->fix.speed;
-		*gpstime = g->fix.time;
+		*gpstime = g->fix.time.tv_sec;
 		return 1;
 	}
 	// Shouldn't be able to get to here...
