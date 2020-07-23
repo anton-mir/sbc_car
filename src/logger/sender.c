@@ -1,4 +1,5 @@
 #include "ccan_json.h"
+#include "airc_box_data_structure.h"
 
 char *generate_json(int id, char *skin_name, double lat, double lon, int speed, double course, int rpm, int pit)
 {
@@ -63,7 +64,7 @@ char *generate_json_car(int id, char *skin_name, double lat, double lon, int spe
     return res;
 }
 
-char *generate_json_box(int id, char *skin_name, double lat, double lon,double temp, double humidity, double co2, double tvoc, double pressure, double co, double no2, double so2, double o3, double hcho, double pm2_5, double pm10)
+char *generate_json_box(int id, char *skin_name, double lat, double lon, airc_box_dataPacket_S *data_recive)
 {
     struct JsonNode *message = json_mkobject(), *state = json_mkobject();
 
@@ -74,18 +75,18 @@ char *generate_json_box(int id, char *skin_name, double lat, double lon,double t
     json_append_member(message, "longitude", json_mknumber(lon));
     json_append_member(message, "state", state);
 
-    json_append_member(state, "temp", json_mknumber(temp));
-    json_append_member(state, "humidity", json_mknumber(humidity));
-    json_append_member(state, "pressure", json_mknumber(pressure));
-    json_append_member(state, "co2", json_mknumber(co2));
-    json_append_member(state, "tvoc", json_mknumber(tvoc));
-    json_append_member(state, "co", json_mknumber(co));
-    json_append_member(state, "no2", json_mknumber(no2));
-    json_append_member(state, "so2", json_mknumber(so2));
-    json_append_member(state, "o3", json_mknumber(o3));
-    json_append_member(state, "hcho", json_mknumber(hcho));
-    json_append_member(state, "pm2_5", json_mknumber(pm2_5));
-    json_append_member(state, "pm10", json_mknumber(pm10));
+    json_append_member(state, "temp", json_mknumber(data_recive->temp));
+    json_append_member(state, "humidity", json_mknumber(data_recive->humidity));
+    json_append_member(state, "pressure", json_mknumber(data_recive->pressure));
+    json_append_member(state, "co2", json_mknumber(data_recive->co2));
+    json_append_member(state, "tvoc", json_mknumber(data_recive->tvoc));
+    json_append_member(state, "co", json_mknumber(data_recive->co));
+    json_append_member(state, "no2", json_mknumber(data_recive->no2));
+    json_append_member(state, "so2", json_mknumber(data_recive->so2));
+    json_append_member(state, "o3", json_mknumber(data_recive->o3));
+    json_append_member(state, "hcho", json_mknumber(data_recive->hcho));
+    json_append_member(state, "pm2_5", json_mknumber(data_recive->pm2_5));
+    json_append_member(state, "pm10", json_mknumber(data_recive->pm10));
 
     json_append_member(message, "type", json_mkstring("AirC_Box"));
 
