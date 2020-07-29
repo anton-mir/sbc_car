@@ -24,16 +24,20 @@ along with obdgpslogger.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef HAVE_GPSD
 
 #include <gps.h>
+static struct gps_data_t my_gps_data;
 
 struct gps_data_t *opengps(char *server, char *port) {
-	struct gps_data_t data;
-    struct gps_data_t *g = &data;
-	int result = gps_open(server,port, g);
-	if(NULL == g)
-		return NULL;
-	result = gps_stream(g, WATCH_ENABLE|WATCH_NEWSTYLE, NULL);
+	int result;
 
-	return g;
+	result = gps_open(server, port, &my_gps_data);
+	if (result < 0)
+		return NULL;
+
+	result = gps_stream(&my_gps_data, WATCH_ENABLE|WATCH_NEWSTYLE, NULL);
+	if (result < 0)
+		return NULL;
+
+	return &my_gps_data;
 }
 
 void closegps(struct gps_data_t *g) {
