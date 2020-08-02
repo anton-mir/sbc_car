@@ -80,6 +80,15 @@ char unit_port[5];
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#define AIRC_BOX_ENABLED
+
+#ifdef AIRC_BOX_ENABLED
+
+#include "airc_box_data_structure.h"
+#include "airc_box_data_processor.h"
+
+#endif //AIRC_BOX_ENABLED
+
 #ifdef HAVE_SIGNAL_H
 #include <signal.h>
 #endif // HAVE_SIGNAL_H
@@ -507,6 +516,21 @@ int main(int argc, char** argv) {
 	char xlgyro_buf[XLGYRO_BUF_SIZE] = {0};
 	int xlgyro_offset = 0;
 	int xlgyro_obstacle = 0;
+#ifdef AIRC_BOX_ENABLED
+#define AIRC_BOX_BUF_SIZE (8192)
+    int airc_box_sock = 0;
+    struct sockaddr_in airc_box_sockaddr;
+    char airc_box_buf[AIRC_BOX_BUF_SIZE] = {0};
+    int airc_box_offset = 0;
+    airc_box_dataPacket_S airc_box_data;
+	if(current_json_type==box)
+	{
+	    if(airc_box_connect(&airc_box_sock,&airc_box_sockaddr)==0)
+	    {
+            printf("airc_box: sock connected\n");
+	    }
+	}
+#endif //AIRC_BOX_ENABLED
 #ifdef XLGYRO_ENABLED	
 	if(xlgyro_connect(&xlgyro_sock, &xlgyro_sockaddr) == 0) {
 		xlgyro_operating = 1;
@@ -671,7 +695,10 @@ int main(int argc, char** argv) {
 				printf("sqlite3 gps insert failed(%i): %s\n", rc, sqlite3_errmsg(db));
 			}
 			sqlite3_reset(gpsinsert);
-			
+#ifdef AIRC_BOX_ENABLED
+            airc_box_get_info(airc_box_sock, airc_box_buf, AIRC_BOX_BUF_SIZE, &airc_box_offset, &airc_box_data);
+
+#endif //AIRC_BOX_ENABLED
 #ifdef XLGYRO_ENABLED
 			if(xlgyro_operating) {
 				xlgyro_get_info(xlgyro_sock, xlgyro_buf, XLGYRO_BUF_SIZE, &xlgyro_offset, &xlgyro_obstacle);
@@ -683,7 +710,7 @@ int main(int argc, char** argv) {
                     gen_json = generate_json_car(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle, 0, 0, 0, 0);
                     break;
                 case box:
-                        gen_json = generate_json_box(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                        gen_json = generate_json_box(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, &airc_box_data);
                     break;
                 case no_type:
                 default:

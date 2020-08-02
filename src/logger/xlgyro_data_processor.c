@@ -32,6 +32,8 @@ int xlgyro_connect(int *xlgyro_sock, struct sockaddr_in *xlgyro_sockaddr) {
 	return 0;
 }
 
+
+
 int xlgyro_get_info(int xlgyro_sock, char buf[], int buf_size, int *offset, int *obstacle) {
 	int ret = 0, size = 0;
 	char *curr = buf;
