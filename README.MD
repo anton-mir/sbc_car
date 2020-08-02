@@ -10,7 +10,7 @@ For car AirC device:
 ```
 cd ~/src/GL-SMARTCITY/sbc-platform/build/src/sbc-car/bin && ./obdgpslogger --airc-device car
 ```
-For box AirC divice:
+For box AirC device:
 
 ```
 cd ~/src/GL-SMARTCITY/sbc-platform/build/src/sbc-car/bin && ./obdgpslogger --airc-device box

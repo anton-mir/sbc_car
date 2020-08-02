@@ -44,11 +44,9 @@ along with obdgpslogger.  If not, see <http://www.gnu.org/licenses/>.
 #include "reporter.h"
 #include "sender.h"
 
-#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-#include "xlgyro_data_processor.h"
 
 #ifdef HAVE_GPSD
 #include "gps.h"
