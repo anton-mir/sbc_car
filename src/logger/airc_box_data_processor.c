@@ -7,7 +7,7 @@
 #include "airc_box_data_structure.h"
 
 #define AIRC_BOX_PORT (11333)
-#define AIRC_BOX_DHCP "192.168.0.103"
+#define AIRC_BOX_DHCP "192.168.88.118" // Change it to AirC device IP
 
 int airc_box_connect(int *airc_box_sock, struct sockaddr_in *airc_box_sockaddr)
 {
