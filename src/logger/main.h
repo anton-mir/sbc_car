@@ -43,6 +43,7 @@ static const struct option longopts[] = {
 	{ "log-columns", required_argument, NULL, 'i' }, ///< Log these columns
 	{ "enable-optimisations", no_argument, NULL, 'o' }, ///< Enable elm optimisations
     { "airc-device", required_argument, NULL, 'x' }, ///< Airc device type
+    { "airc-box-dhcp", required_argument, NULL, 'D' }, ///< Airc Box DHCP
 #ifdef OBDPLATFORM_POSIX
 	{ "daemon", no_argument, NULL, 'm' }, ///< Daemonise
 #endif //OBDPLATFORM_POSIX
