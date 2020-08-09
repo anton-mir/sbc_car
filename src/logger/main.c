@@ -107,6 +107,8 @@ static int sig_starttrip = 0;
 static int obddaemonise();
 #endif //OBDPLATFORM_POSIX
 
+static char *AIRC_BOX_DHTP="192.168.0.101";
+
 /// Set up signal handling
 static void install_signalhandlers();
 
@@ -268,6 +270,9 @@ int main(int argc, char** argv) {
 			case 'p':
 				showcapabilities = 1;
 				break;
+		    case 'D':
+                 AIRC_BOX_DHTP = strdup(optarg);
+		        break;
 			default:
 				mustexit = 1;
 				break;
@@ -319,11 +324,11 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "Successfully connected to serial port. Will log obd data\n");
 	}
 
-	// Just figure out our car's OBD port capabilities and print them
-	if(showcapabilities) {
-		printobdcapabilities(obd_serial_port);
-		
-		printf("\n");
+        // Just figure out our car's OBD port capabilities and print them
+        if (showcapabilities) {
+            printobdcapabilities(obd_serial_port);
+
+            printf("\n");
 
 /*
 		unsigned int retvals[50];
@@ -339,32 +344,36 @@ int main(int argc, char** argv) {
 
 */
 
-		closeserial(obd_serial_port);
-		exit(0);
-	}
+            closeserial(obd_serial_port);
+            exit(0);
+        }
+
 
 
 #ifdef HAVE_GPSD
 	// Open the gps device
 	struct gps_data_t *gpsdata;
-	gpsdata = opengps(GPSD_ADDR, GPSD_PORT);
 
-	if(NULL == gpsdata) {
-		fprintf(stderr, "Couldn't open gps port on startup.\n");
-	} else {
-		fprintf(stderr, "Successfully connected to gpsd. Will log gps data\n");
-	}
+    if(current_json_type!=box) {
+        gpsdata = opengps(GPSD_ADDR, GPSD_PORT);
+
+        if (NULL == gpsdata) {
+            fprintf(stderr, "Couldn't open gps port on startup.\n");
+        } else {
+            fprintf(stderr, "Successfully connected to gpsd. Will log gps data\n");
+        }
 
 #endif //HAVE_GPSD
 
-	if(-1 == obd_serial_port
-#ifdef HAVE_GPSD
-		&& NULL == gpsdata
+        if (-1 == obd_serial_port
+            #ifdef HAVE_GPSD
+            && NULL == gpsdata
 #endif //HAVE_GPSD
-	) {
-		fprintf(stderr, "Couldn't find either gps or obd to log. Exiting.\n");
-		exit(1);
-	}
+                ) {
+            fprintf(stderr, "Couldn't find either gps or obd to log. Exiting.\n");
+            exit(1);
+        }
+    }
 
 #ifdef HAVE_DBUS
 	obdinitialisedbus();
@@ -409,7 +418,6 @@ int main(int argc, char** argv) {
 	wishlist_cmds=NULL;
 
 	createobdtable(db,obdcaps);
-
 	// Create the insert statement. On success, we'll have the number of columns
 	if(0 == (obdnumcols = createobdinsertstmt(db,&obdinsert, obdcaps)) || NULL == obdinsert) {
 		closedb(db);
@@ -525,7 +533,7 @@ int main(int argc, char** argv) {
     airc_box_dataPacket_S airc_box_data;
 	if(current_json_type==box)
 	{
-	    if(airc_box_connect(&airc_box_sock,&airc_box_sockaddr)==0)
+	    if(airc_box_connect(&airc_box_sock,AIRC_BOX_DHTP,&airc_box_sockaddr)==0)
 	    {
             printf("airc_box: sock connected\n");
 	    }
@@ -646,22 +654,24 @@ int main(int argc, char** argv) {
 		double lat,lon,alt,speed,course,gpstime;
 
 		int gpsstatus = -1;
-		if(NULL != gpsdata) {
-			gpsstatus = getgpsposition(gpsdata, &lat, &lon, &alt, &speed, &course, &gpstime);
-		} else {
-			if(time_insert - time_lastgpscheck > 10) { // Try again once in a while
-				gpsdata = opengps(GPSD_ADDR, GPSD_PORT);
-				if(NULL != gpsdata) {
-					printf("Delayed connection to gps achieved\n");
-				} else {
-					// fprintf(stderr, "Delayed connection to gps failed\n");
-				}
-				time_lastgpscheck = time_insert;
-			}
-		}
-		if(gpsstatus < 0 || NULL == gpsdata) {
+		if(current_json_type!=box) {
+            if (NULL != gpsdata) {
+                gpsstatus = getgpsposition(gpsdata, &lat, &lon, &alt, &speed, &course, &gpstime);
+            } else {
+                if (time_insert - time_lastgpscheck > 10) { // Try again once in a while
+                    gpsdata = opengps(GPSD_ADDR, GPSD_PORT);
+                    if (NULL != gpsdata) {
+                        printf("Delayed connection to gps achieved\n");
+                    } else {
+                        // fprintf(stderr, "Delayed connection to gps failed\n");
+                    }
+                    time_lastgpscheck = time_insert;
+                }
+            }
+        }
+		if((gpsstatus < 0 || NULL == gpsdata) && (current_json_type!=box) ) {
 			// Nothing yet
-		} else if(gpsstatus >= 0) {
+		} else if(gpsstatus >= 0 || current_json_type==box) {
 			if(0 == have_gps_lock) {
 				fprintf(stderr,"GPS acquisition complete\n");
 				have_gps_lock = 1;
@@ -695,22 +705,21 @@ int main(int argc, char** argv) {
 				printf("sqlite3 gps insert failed(%i): %s\n", rc, sqlite3_errmsg(db));
 			}
 			sqlite3_reset(gpsinsert);
-#ifdef AIRC_BOX_ENABLED
-            airc_box_get_info(airc_box_sock, airc_box_buf, AIRC_BOX_BUF_SIZE, &airc_box_offset, &airc_box_data);
-
-#endif //AIRC_BOX_ENABLED
 #ifdef XLGYRO_ENABLED
 			if(xlgyro_operating) {
 				xlgyro_get_info(xlgyro_sock, xlgyro_buf, XLGYRO_BUF_SIZE, &xlgyro_offset, &xlgyro_obstacle);
 				if(xlgyro_obstacle)printf("\n\nObstacle!\n\n");
 			}
 #endif
+#ifdef AIRC_BOX_ENABLED
+            airc_box_get_info(airc_box_sock, airc_box_buf, AIRC_BOX_BUF_SIZE, &airc_box_offset, &airc_box_data);
+#endif //AIRC_BOX_ENABLED
             switch (current_json_type) {
 			    case car:
                     gen_json = generate_json_car(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle, 0, 0, 0, 0);
                     break;
                 case box:
-                        gen_json = generate_json_box(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, &airc_box_data);
+                    gen_json = generate_json_box(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, &airc_box_data);
                     break;
                 case no_type:
                 default:
@@ -773,9 +782,11 @@ int main(int argc, char** argv) {
 
 	closeserial(obd_serial_port);
 #ifdef HAVE_GPSD
-	if(NULL != gpsdata) {
-		gps_close(gpsdata);
-	}
+	if(current_json_type!=box) {
+        if (NULL != gpsdata) {
+            gps_close(gpsdata);
+        }
+    }
 #endif //HAVE_GPSD
 	closedb(db);
 
@@ -845,6 +856,7 @@ void printhelp(const char *argv0) {
 				"   [-l|--serial-log <filename>]\n"
 				"   [-a|--samplerate [1]]\n"
 				"   [-d|--db <" OBD_DEFAULT_DATABASE ">]\n"
+                "   [-D|--airc-box-dhcp <DHCP>]\n"
 				"   [-v|--version] [-h|--help]\n", argv0);
 }
 
