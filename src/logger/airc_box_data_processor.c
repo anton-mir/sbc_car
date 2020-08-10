@@ -8,7 +8,7 @@
 
 #define AIRC_BOX_PORT (11333)
 
-int airc_box_connect(int *airc_box_sock, const char *dhcp, struct sockaddr_in *airc_box_sockaddr)
+int airc_box_connect(int *airc_box_sock, const char *ip, struct sockaddr_in *airc_box_sockaddr)
 {
     if ((*airc_box_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -19,7 +19,7 @@ int airc_box_connect(int *airc_box_sock, const char *dhcp, struct sockaddr_in *a
     airc_box_sockaddr->sin_family = AF_INET;
     airc_box_sockaddr->sin_port  = htons(AIRC_BOX_PORT);
 
-    if(inet_pton(AF_INET, dhcp, &(airc_box_sockaddr->sin_addr)) <= 0)
+    if(inet_pton(AF_INET, ip, &(airc_box_sockaddr->sin_addr)) <= 0)
     {
         printf("airc_box: invalid address\n");
         return -2;

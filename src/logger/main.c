@@ -105,7 +105,7 @@ static int sig_starttrip = 0;
 static int obddaemonise();
 #endif //OBDPLATFORM_POSIX
 
-static char *AIRC_BOX_DHTP="192.168.0.101";
+static char *AIRC_BOX_IP="192.168.0.101";
 
 /// Set up signal handling
 static void install_signalhandlers();
@@ -269,7 +269,7 @@ int main(int argc, char** argv) {
 				showcapabilities = 1;
 				break;
 		    case 'D':
-                 AIRC_BOX_DHTP = strdup(optarg);
+                 AIRC_BOX_IP = strdup(optarg);
 		        break;
 			default:
 				mustexit = 1;
@@ -531,7 +531,7 @@ int main(int argc, char** argv) {
     airc_box_dataPacket_S airc_box_data;
 	if(current_json_type==box)
 	{
-	    if(airc_box_connect(&airc_box_sock,AIRC_BOX_DHTP,&airc_box_sockaddr)==0)
+	    if(airc_box_connect(&airc_box_sock,AIRC_BOX_IP,&airc_box_sockaddr)==0)
 	    {
             printf("airc_box: sock connected\n");
 	    }
@@ -854,7 +854,7 @@ void printhelp(const char *argv0) {
 				"   [-l|--serial-log <filename>]\n"
 				"   [-a|--samplerate [1]]\n"
 				"   [-d|--db <" OBD_DEFAULT_DATABASE ">]\n"
-                "   [-D|--airc-box-dhcp <DHCP>]\n"
+                "   [-D|--airc-box-ip <IP>]\n"
 				"   [-v|--version] [-h|--help]\n", argv0);
 }
 
