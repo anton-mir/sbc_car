@@ -43,6 +43,7 @@ static const struct option longopts[] = {
 	{ "log-columns", required_argument, NULL, 'i' }, ///< Log these columns
 	{ "enable-optimisations", no_argument, NULL, 'o' }, ///< Enable elm optimisations
     { "airc-device", required_argument, NULL, 'x' }, ///< Airc device type
+    { "airc-box-ip", required_argument, NULL, 'D' }, ///< Airc Box IP
 #ifdef OBDPLATFORM_POSIX
 	{ "daemon", no_argument, NULL, 'm' }, ///< Daemonise
 #endif //OBDPLATFORM_POSIX
@@ -50,7 +51,7 @@ static const struct option longopts[] = {
 };
 
 /// getopt() short options
-static const char shortopts[] = "htdx:i:b:vs:l:c:a:opu:B:"
+static const char shortopts[] = "htdx:i:b:vs:l:c:a:opu:B:D:"
 #ifdef OBDPLATFORM_POSIX
 	"m"
 #endif //OBDPLATFORM_POSIX
