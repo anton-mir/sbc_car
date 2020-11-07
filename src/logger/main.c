@@ -105,7 +105,7 @@ static int sig_starttrip = 0;
 static int obddaemonise();
 #endif //OBDPLATFORM_POSIX
 
-static char *AIRC_BOX_IP="192.168.0.101";
+static char *AIRC_BOX_IP="192.168.88.116";
 
 /// Set up signal handling
 static void install_signalhandlers();

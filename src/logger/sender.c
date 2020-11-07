@@ -81,9 +81,17 @@ char *generate_json_box(int id, char *skin_name, double lat, double lon, airc_bo
     json_append_member(state, "co2", json_mknumber(data_recive->co2));
     json_append_member(state, "tvoc", json_mknumber(data_recive->tvoc));
     json_append_member(state, "co", json_mknumber(data_recive->co));
+    json_append_member(state, "co_temp", json_mknumber(data_recive->co_temp));
+    json_append_member(state, "co_hum", json_mknumber(data_recive->co_hum));
     json_append_member(state, "no2", json_mknumber(data_recive->no2));
+    json_append_member(state, "no2_temp", json_mknumber(data_recive->no2_temp));
+    json_append_member(state, "no2_hum", json_mknumber(data_recive->no2_hum));
     json_append_member(state, "so2", json_mknumber(data_recive->so2));
+    json_append_member(state, "so2_temp", json_mknumber(data_recive->so2_temp));
+    json_append_member(state, "so2_hum", json_mknumber(data_recive->so2_hum));
     json_append_member(state, "o3", json_mknumber(data_recive->o3));
+    json_append_member(state, "o3_temp", json_mknumber(data_recive->o3_temp));
+    json_append_member(state, "o3_hum", json_mknumber(data_recive->o3_hum));
     json_append_member(state, "hcho", json_mknumber(data_recive->hcho));
     json_append_member(state, "pm2_5", json_mknumber(data_recive->pm2_5));
     json_append_member(state, "pm10", json_mknumber(data_recive->pm10));
