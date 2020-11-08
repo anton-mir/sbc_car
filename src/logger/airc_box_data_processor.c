@@ -5,6 +5,7 @@
 #include <string.h>
 #include "airc_box_data_processor.h"
 #include "airc_box_data_structure.h"
+#include <fcntl.h>
 
 #define AIRC_BOX_PORT (11333)
 
@@ -38,10 +39,19 @@ int airc_box_get_info(int airc_box_sock, char buf[], int buf_size, int *offset, 
 {
     int ret = 0, size = 0;
     char *curr = buf;
+    static uint32_t AirC_Box_data_packets_counter = 0;
+
+    // TODO: Make read() non-blocking and implement read timeout
+    // in order to reconnect to AirC Box
+
     ret = read(airc_box_sock, (buf + *offset), buf_size);
+
+    AirC_Box_data_packets_counter++;
+    printf("airc_box: got packet number %d\n", AirC_Box_data_packets_counter);
     printf("airc_box: read %d bytes\n", ret);
+
     ret += *offset;
-    printf("airc_box: %d bytes to process\n", ret);
+    printf("airc_box: %d bytes left to process\n", ret);
 
     *offset = 0;
     size = ret;

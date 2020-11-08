@@ -43,19 +43,23 @@ int wait_on_any_unit_req(int *client_sock)
     listen(reg_serv_fd, REG_MAX_CLIENTS_CNT);
 
     printf("Waiting for incoming connections...\n");
-    *client_sock = accept(reg_serv_fd,
-                        (struct sockaddr *)&sender,
-                        (socklen_t*)&sendsize);
+
+    // TODO: Check why this leads to error
+    //    *client_sock = accept(reg_serv_fd,
+    //                        (struct sockaddr *)&sender,
+    //                        (socklen_t*)&sendsize);
 
     int read_bytes = recv(*client_sock, request, REG_REQ_MAX_LEN, 0);
 
     printf("Some request was received\n");
 
     if ((read_bytes != REG_REQ_MAX_LEN) ||
-        (0 != strncmp(&request[0], REG_REQUEST, read_bytes)))  {
+        (0 != strncmp(&request[0], REG_REQUEST, read_bytes)))
+    {
         printf("Request is wrong: %s\n", request);
         return -1;
     }
+
     printf("Registration request was received: %s\n", request);
 
     return 0;

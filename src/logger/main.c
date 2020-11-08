@@ -213,9 +213,13 @@ int main(int argc, char** argv) {
 				{
 					int newout = open(optarg, O_CREAT|O_RDWR|O_APPEND,
 						S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
-					if(-1 == newout) {
+
+					if (-1 == newout)
+					{
 						perror(optarg);
-					} else {
+					}
+					else
+                    {
 						printf("Redirecting output to %s\n", optarg);
 						close(STDOUT_FILENO);
 						close(STDERR_FILENO);
@@ -277,53 +281,74 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	if(mustexit) exit(0);
+	if (mustexit) exit(0);
 
-	if(0 >= samplespersecond) {
+	if (0 >= samplespersecond)
+	{
 		frametime = 0;
-	} else {
+	}
+	else
+    {
 		frametime = 1000000 / samplespersecond;
 	}
 
-	if(NULL == serialport) {
-		if(NULL != obd_config && NULL != obd_config->obd_device) {
+	if(NULL == serialport)
+	{
+		if (NULL != obd_config && NULL != obd_config->obd_device)
+		{
 			serialport = strdup(obd_config->obd_device);
-		} else {
+		}
+		else
+        {
 			serialport = strdup(OBD_DEFAULT_SERIALPORT);
 		}
 	}
-	if(NULL == databasename) {
-		if(NULL != obd_config && NULL != obd_config->log_file) {
+
+	if (NULL == databasename)
+	{
+		if (NULL != obd_config && NULL != obd_config->log_file)
+		{
 			databasename = strdup(obd_config->log_file);
-		} else {
+		}
+		else
+        {
 			databasename = strdup(OBD_DEFAULT_DATABASE);
 		}
 	}
-	if(NULL == log_columns) {
-		if(NULL != obd_config && NULL != obd_config->log_columns) {
+
+	if (NULL == log_columns)
+	{
+		if (NULL != obd_config && NULL != obd_config->log_columns)
+		{
 			log_columns = strdup(obd_config->log_columns);
-		} else {
+		}
+		else
+        {
 			log_columns = strdup(OBD_DEFAULT_COLUMNS);
 		}
 	}
 
 
-	if(enable_seriallog && NULL != seriallogname) {
+	if (enable_seriallog && NULL != seriallogname)
+	{
 		startseriallog(seriallogname);
 	}
-
 
 	// Open the serial port.
 	int obd_serial_port = openserial(serialport, requested_baud, baudrate_upgrade);
 
-	if(-1 == obd_serial_port) {
+	if (obd_serial_port == -1)
+	{
 		fprintf(stderr, "Couldn't open obd serial port. Attempting to continue.\n");
-	} else {
+	}
+	else
+    {
 		fprintf(stderr, "Successfully connected to serial port. Will log obd data\n");
 	}
 
         // Just figure out our car's OBD port capabilities and print them
-        if (showcapabilities) {
+        if (showcapabilities)
+        {
             printobdcapabilities(obd_serial_port);
 
             printf("\n");
@@ -461,7 +486,7 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-#ifdef OBDPLATFORM_POSIX
+    #ifdef OBDPLATFORM_POSIX
 	if(daemonise) {
 		if(0 != obddaemonise()) {
 			fprintf(stderr,"Couldn't daemonise, exiting\n");
@@ -469,13 +494,13 @@ int main(int argc, char** argv) {
 			exit(1);
 		}
 	}
-#endif //OBDPLATFORM_POSIX
+    #endif //OBDPLATFORM_POSIX
 
-#ifdef HAVE_GPSD
+    #ifdef HAVE_GPSD
 	// Ping a message to stdout the first time we get
 	//   enough of a satellite lock to begin logging
 	int have_gps_lock = 0;
-#endif //HAVE_GPSD
+    #endif //HAVE_GPSD
 
 
 	install_signalhandlers();
@@ -510,46 +535,58 @@ int main(int argc, char** argv) {
     open_reg_serv(reg_port);
 
     wait_on_any_unit_req(&client_socket);
+
     printf("client_socket = %d\n", client_socket);
     sprintf (unit_port, "%d", SBC_CAR_UNIT_PORT);
+
     write(client_socket, unit_port, strlen(unit_port));
 
     reporter_init(reg_ip, SBC_CAR_UNIT_PORT);
 
 	int xlgyro_sock = 0, xlgyro_operating = 0, xlgyro_ret = 0;
 	struct sockaddr_in xlgyro_sockaddr;
-#define XLGYRO_BUF_SIZE (8192)
+
+	#define XLGYRO_BUF_SIZE (8192)
 	char xlgyro_buf[XLGYRO_BUF_SIZE] = {0};
 	int xlgyro_offset = 0;
 	int xlgyro_obstacle = 0;
-#ifdef AIRC_BOX_ENABLED
-#define AIRC_BOX_BUF_SIZE (8192)
-    int airc_box_sock = 0;
+
+	#ifdef AIRC_BOX_ENABLED
+
+	#define AIRC_BOX_BUF_SIZE (8192)
+
+	int airc_box_sock = 0;
     struct sockaddr_in airc_box_sockaddr;
     char airc_box_buf[AIRC_BOX_BUF_SIZE] = {0};
     int airc_box_offset = 0;
     airc_box_dataPacket_S airc_box_data;
-	if(current_json_type==box)
+
+	if (current_json_type==box)
 	{
-	    if(airc_box_connect(&airc_box_sock,AIRC_BOX_IP,&airc_box_sockaddr)==0)
+	    if (airc_box_connect(&airc_box_sock,AIRC_BOX_IP,&airc_box_sockaddr)==0)
 	    {
-            printf("airc_box: sock connected\n");
+            printf("\nairc_box: sock connected\n");
 	    }
 	}
-#endif //AIRC_BOX_ENABLED
-#ifdef XLGYRO_ENABLED	
+    #endif //AIRC_BOX_ENABLED
+
+    #ifdef XLGYRO_ENABLED
 	if(xlgyro_connect(&xlgyro_sock, &xlgyro_sockaddr) == 0) {
 		xlgyro_operating = 1;
-		printf("xlgyro: sock connected\n");
+		printf("\nxlgyro: sock connected\n");
 	}
-#endif
-	while(samplecount == -1 || samplecount-- > 0) {
+    #endif
+
+	// Receive data in a cycle
+	while(samplecount == -1 || samplecount-- > 0)
+	{
 
 		struct timeval starttime; // start time through loop
 		struct timeval endtime; // end time through loop
 		struct timeval selecttime; // =endtime-starttime [for select()]
 
-		if(0 != gettimeofday(&starttime,NULL)) {
+		if (gettimeofday(&starttime,NULL) != 0)
+		{
 			perror("Couldn't gettimeofday");
 			break;
 		}
@@ -574,8 +611,10 @@ int main(int argc, char** argv) {
 
 		time_insert = (double)starttime.tv_sec+(double)starttime.tv_usec/1000000.0f;
 
-		if(sig_starttrip) {
-			if(ontrip) {
+		if (sig_starttrip)
+		{
+			if (ontrip)
+			{
 				fprintf(stderr,"Ending current trip\n");
 				updatetrip(db, currenttrip, time_insert);
 				ontrip = 0;
@@ -589,9 +628,12 @@ int main(int argc, char** argv) {
 		int rpm = 0;
 
 		enum obd_serial_status obdstatus;
-		if(-1 < obd_serial_port) {
+
+		if (obd_serial_port > -1)
+		{
 			// Get all the OBD data
-			for(i=0; i<obdnumcols-1; i++) {
+			for (i=0; i<obdnumcols-1; i++)
+			{
 				//float val;
 				float val;
 				unsigned int cmdid = obdcmds_mode1[cmdlist[i]].cmdid;
@@ -599,25 +641,32 @@ int main(int argc, char** argv) {
 				OBDConvFunc conv = obdcmds_mode1[cmdlist[i]].conv;
 
 				obdstatus = getobdvalue(obd_serial_port, cmdid, &val, numbytes, conv);
-				if(OBD_SUCCESS == obdstatus) {
+
+				if(OBD_SUCCESS == obdstatus)
+				{
 					if(cmdid == 0x0c)rpm = (int)val;
 					if(cmdid == 0x0d)obd_speed = 7;
 #ifdef HAVE_DBUS
 					obddbussignalpid(&obdcmds_mode1[cmdlist[i]], val);
 #endif //HAVE_DBUS
-					if(spam_stdout) {
+					if (spam_stdout)
+					{
 						printf("%s=%f\n", obdcmds_mode1[cmdlist[i]].db_column, val);
 					}
 					sqlite3_bind_double(obdinsert, i+1, (double)val);
 					// printf("cmd: %02X, val: %f\n",obdcmds_mode1[cmdlist[i]].cmdid,val);
-				} else {
+				}
+				else
+                {
 					break;
 				}
 			}
 
-			if(obdstatus == OBD_SUCCESS) {
+			if (obdstatus == OBD_SUCCESS)
+			{
 				// If they're not on a trip but the engine is going, start a trip
-				if(0 == ontrip) {
+				if (0 == ontrip)
+				{
 					printf("Creating a new trip\n");
 					currenttrip = starttrip(db, time_insert);
 					ontrip = 1;
@@ -627,15 +676,22 @@ int main(int argc, char** argv) {
 
 				// Do the OBD insert
 				rc = sqlite3_step(obdinsert);
-				if(SQLITE_DONE != rc) {
+
+				if(SQLITE_DONE != rc)
+				{
 					printf("sqlite3 obd insert failed(%i): %s\n", rc, sqlite3_errmsg(db));
 				}
-			} else if(OBD_ERROR == obdstatus) {
+			}
+			else if (OBD_ERROR == obdstatus)
+			{
 				fprintf(stderr, "Received OBD_ERROR from serial read. Exiting\n");
 				receive_exitsignal = 1;
-			} else {
+			}
+			else
+            {
 				// If they're on a trip, and the engine has desisted, stop the trip
-				if(ontrip) {
+				if (ontrip)
+				{
 					printf("Ending current trip\n");
 					updatetrip(db, currenttrip, time_insert);
 					ontrip = 0;
@@ -652,67 +708,105 @@ int main(int argc, char** argv) {
 		double lat,lon,alt,speed,course,gpstime;
 
 		int gpsstatus = -1;
-		if(current_json_type!=box) {
-            if (NULL != gpsdata) {
+
+		if (current_json_type != box)
+		{
+            if (NULL != gpsdata)
+            {
                 gpsstatus = getgpsposition(gpsdata, &lat, &lon, &alt, &speed, &course, &gpstime);
-            } else {
-                if (time_insert - time_lastgpscheck > 10) { // Try again once in a while
+            }
+            else
+            {
+                if (time_insert - time_lastgpscheck > 10)
+                { // Try again once in a while
                     gpsdata = opengps(GPSD_ADDR, GPSD_PORT);
-                    if (NULL != gpsdata) {
+                    if (NULL != gpsdata)
+                    {
                         printf("Delayed connection to gps achieved\n");
-                    } else {
+                    }
+                    else
+                    {
                         // fprintf(stderr, "Delayed connection to gps failed\n");
                     }
                     time_lastgpscheck = time_insert;
                 }
             }
         }
-		if((gpsstatus < 0 || NULL == gpsdata) && (current_json_type!=box) ) {
-			// Nothing yet
-		} else if(gpsstatus >= 0 || current_json_type==box) {
-			if(0 == have_gps_lock) {
+
+		if ((gpsstatus < 0 || NULL == gpsdata) && (current_json_type != box) )
+		{
+			// Nothing yet, process AirC Car data here
+		}
+		// Process AirC Box and GPS
+		else if (gpsstatus >= 0 || current_json_type == box)
+		{
+			if (have_gps_lock == 0)
+			{
 				fprintf(stderr,"GPS acquisition complete\n");
 				have_gps_lock = 1;
 			}
 
 			sqlite3_bind_double(gpsinsert, 1, lat);
 			sqlite3_bind_double(gpsinsert, 2, lon);
-			if(gpsstatus >= 1) {
+
+			if(gpsstatus >= 1)
+			{
 				sqlite3_bind_double(gpsinsert, 3, alt);
-			} else {
+			}
+			else
+            {
 				sqlite3_bind_null(gpsinsert, 3);
 			}
+
 			sqlite3_bind_double(gpsinsert, 4, speed);
 			sqlite3_bind_double(gpsinsert, 5, course);
 			sqlite3_bind_double(gpsinsert, 6, gpstime);
 
-			if(spam_stdout) {
+			if(spam_stdout)
+			{
 				printf("gpspos=%f,%f,%f,%f,%f\n",
 					lat, lon, (gpsstatus>=1?alt:-1000.0), speed, course);
 			}
 
 			// Use time worked out before.
-			//  This makes table joins reliable, but the time itself may be wrong depending on gpsd lagginess
+			// This makes table joins reliable, but the time itself may be wrong depending on gpsd lagginess
 			sqlite3_bind_double(gpsinsert, 7, time_insert);
 
 			sqlite3_bind_int64(gpsinsert, 8, currenttrip);
 
 			// Do the GPS insert
 			rc = sqlite3_step(gpsinsert);
-			if(SQLITE_DONE != rc) {
+
+			if (SQLITE_DONE != rc)
+			{
 				printf("sqlite3 gps insert failed(%i): %s\n", rc, sqlite3_errmsg(db));
 			}
+
 			sqlite3_reset(gpsinsert);
-#ifdef XLGYRO_ENABLED
+
+			#ifdef XLGYRO_ENABLED
 			if(xlgyro_operating) {
 				xlgyro_get_info(xlgyro_sock, xlgyro_buf, XLGYRO_BUF_SIZE, &xlgyro_offset, &xlgyro_obstacle);
 				if(xlgyro_obstacle)printf("\n\nObstacle!\n\n");
 			}
-#endif
-#ifdef AIRC_BOX_ENABLED
+			#endif
+
+			#ifdef AIRC_BOX_ENABLED
+            printf("\nSTART NEW RECEIVING CYCLE\n");
+//            if (time_insert - time_lastgpscheck > 60) // Try again to reconnect to AirC device
+//            {
+//                if (airc_box_connect(&airc_box_sock,AIRC_BOX_IP,&airc_box_sockaddr) == 0)
+//                {
+//                    printf("airc_box: sock reconnected\n");
+//                }
+//                time_lastgpscheck = time_insert;
+//            }
+
             airc_box_get_info(airc_box_sock, airc_box_buf, AIRC_BOX_BUF_SIZE, &airc_box_offset, &airc_box_data);
-#endif //AIRC_BOX_ENABLED
-            switch (current_json_type) {
+			#endif //AIRC_BOX_ENABLED
+
+            switch (current_json_type)
+            {
 			    case car:
                     gen_json = generate_json_car(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle, 0, 0, 0, 0);
                     break;
@@ -731,46 +825,52 @@ int main(int argc, char** argv) {
 		}
 #endif //HAVE_GPSD
 
-		if(0 != gettimeofday(&endtime,NULL)) {
+		if (0 != gettimeofday(&endtime,NULL))
+		{
 			perror("Couldn't gettimeofday");
 			break;
 		}
 
 		// Set via the signal handler
-		if(receive_exitsignal) {
+		if(receive_exitsignal)
+		{
 			break;
 		}
-
 
 		// Commit this if we've done more than a certain number
 		transactioncount++;
 		transactioncount%=basetransactioncount;
-		if(0 == transactioncount) {
+
+		if (transactioncount == 0)
+		{
 			obdcommittransaction(db);
 			obdbegintransaction(db);
 		}
 
-		
 		// usleep() not as portable as select()
 
-		if(0 < frametime) {
+		if (0 < frametime)
+		{
 			selecttime.tv_sec = endtime.tv_sec - starttime.tv_sec;
-			if (selecttime.tv_sec != 0) {
+			if (selecttime.tv_sec != 0)
+			{
 					endtime.tv_usec += 1000000*selecttime.tv_sec;
 					selecttime.tv_sec = 0;
 			}
 			selecttime.tv_usec = (frametime) - 
 					(endtime.tv_usec - starttime.tv_usec);
-			if(selecttime.tv_usec < 0) {
+			if (selecttime.tv_usec < 0)
+			{
 					selecttime.tv_usec = 1;
 			}
 			select(0,NULL,NULL,NULL,&selecttime);
 		}
-	}
+	} // end of while(...) receiving data cycle
 
 	obdcommittransaction(db);
 
-	if(0 != ontrip) {
+	if(0 != ontrip)
+	{
 		updatetrip(db, currenttrip, time_insert);
 		ontrip = 0;
 	}
@@ -779,16 +879,21 @@ int main(int argc, char** argv) {
 	sqlite3_finalize(gpsinsert);
 
 	closeserial(obd_serial_port);
-#ifdef HAVE_GPSD
-	if(current_json_type!=box) {
-        if (NULL != gpsdata) {
+
+	#ifdef HAVE_GPSD
+	if (current_json_type != box)
+	{
+        if (gpsdata =! NULL)
+        {
             gps_close(gpsdata);
         }
     }
-#endif //HAVE_GPSD
+    #endif //HAVE_GPSD
+
 	closedb(db);
 
-	if(enable_seriallog) {
+	if (enable_seriallog)
+	{
 		closeseriallog();
 	}
 
@@ -797,6 +902,7 @@ int main(int argc, char** argv) {
 	if(NULL != serialport) free(serialport);
 
 	obd_freeConfig(obd_config);
+
 	return 0;
 }
 
