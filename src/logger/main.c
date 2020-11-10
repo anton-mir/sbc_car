@@ -811,7 +811,7 @@ int main(int argc, char** argv) {
                     gen_json = generate_json_car(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle, 0, 0, 0, 0);
                     break;
                 case box:
-                    gen_json = generate_json_box(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, &airc_box_data);
+                    gen_json = generate_json_box(&airc_box_data);
                     break;
                 case no_type:
                 default:

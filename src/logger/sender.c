@@ -64,40 +64,42 @@ char *generate_json_car(int id, char *skin_name, double lat, double lon, int spe
     return res;
 }
 
-char *generate_json_box(int id, char *skin_name, double lat, double lon, airc_box_dataPacket_S *data_recive)
+char *generate_json_box(airc_box_dataPacket_S *data_recive)
 {
-    struct JsonNode *message = json_mkobject(), *state = json_mkobject();
-
-    json_append_member(message, "id", json_mknumber(id));
-    json_append_member(message, "skin", json_mkstring(skin_name));
-    json_append_member(message, "name", json_mkstring("AirC Box"));
-    json_append_member(message, "latitude", json_mknumber(lat));
-    json_append_member(message, "longitude", json_mknumber(lon));
-    json_append_member(message, "state", state);
-
-    json_append_member(state, "temp", json_mknumber(data_recive->temp));
-    json_append_member(state, "humidity", json_mknumber(data_recive->humidity));
-    json_append_member(state, "pressure", json_mknumber(data_recive->pressure));
-    json_append_member(state, "co2", json_mknumber(data_recive->co2));
-    json_append_member(state, "tvoc", json_mknumber(data_recive->tvoc));
-    json_append_member(state, "co", json_mknumber(data_recive->co));
-    json_append_member(state, "co_temp", json_mknumber(data_recive->co_temp));
-    json_append_member(state, "co_hum", json_mknumber(data_recive->co_hum));
-    json_append_member(state, "no2", json_mknumber(data_recive->no2));
-    json_append_member(state, "no2_temp", json_mknumber(data_recive->no2_temp));
-    json_append_member(state, "no2_hum", json_mknumber(data_recive->no2_hum));
-    json_append_member(state, "so2", json_mknumber(data_recive->so2));
-    json_append_member(state, "so2_temp", json_mknumber(data_recive->so2_temp));
-    json_append_member(state, "so2_hum", json_mknumber(data_recive->so2_hum));
-    json_append_member(state, "o3", json_mknumber(data_recive->o3));
-    json_append_member(state, "o3_temp", json_mknumber(data_recive->o3_temp));
-    json_append_member(state, "o3_hum", json_mknumber(data_recive->o3_hum));
-    json_append_member(state, "hcho", json_mknumber(data_recive->hcho));
-    json_append_member(state, "pm2_5", json_mknumber(data_recive->pm2_5));
-    json_append_member(state, "pm10", json_mknumber(data_recive->pm10));
-
-    json_append_member(message, "type", json_mkstring("AirC_Box"));
-
+    struct JsonNode *message = json_mkobject(), *sensors_data = json_mkobject();
+    // AirC device info
+    json_append_member(message, "id", json_mknumber(data_recive->device_id));
+    json_append_member(message, "status", json_mknumber(data_recive->device_working_status));
+    json_append_member(message, "counter", json_mknumber(data_recive->device_message_counter));
+    json_append_member(message, "type", json_mkstring(data_recive->device_type));
+    json_append_member(message, "description", json_mkstring(data_recive->device_description));
+    json_append_member(message, "date_time", json_mkstring(data_recive->message_date_time));
+    json_append_member(message, "latitude", json_mknumber(data_recive->latitude));
+    json_append_member(message, "longitude", json_mknumber(data_recive->longitude));
+    json_append_member(message, "altitude", json_mknumber(data_recive->altitude));
+    json_append_member(message, "skin", json_mkstring("AirC_box"));
+    // Sensors data
+    json_append_member(message, "state", sensors_data);
+    json_append_member(sensors_data, "temp", json_mknumber(data_recive->temp));
+    json_append_member(sensors_data, "humidity", json_mknumber(data_recive->humidity));
+    json_append_member(sensors_data, "pressure", json_mknumber(data_recive->pressure));
+    json_append_member(sensors_data, "co2", json_mknumber(data_recive->co2));
+    json_append_member(sensors_data, "tvoc", json_mknumber(data_recive->tvoc));
+    json_append_member(sensors_data, "co", json_mknumber(data_recive->co));
+    json_append_member(sensors_data, "co_temp", json_mknumber(data_recive->co_temp));
+    json_append_member(sensors_data, "co_hum", json_mknumber(data_recive->co_hum));
+    json_append_member(sensors_data, "no2", json_mknumber(data_recive->no2));
+    json_append_member(sensors_data, "no2_temp", json_mknumber(data_recive->no2_temp));
+    json_append_member(sensors_data, "no2_hum", json_mknumber(data_recive->no2_hum));
+    json_append_member(sensors_data, "so2", json_mknumber(data_recive->so2));
+    json_append_member(sensors_data, "so2_temp", json_mknumber(data_recive->so2_temp));
+    json_append_member(sensors_data, "so2_hum", json_mknumber(data_recive->so2_hum));
+    json_append_member(sensors_data, "o3", json_mknumber(data_recive->o3));
+    json_append_member(sensors_data, "o3_temp", json_mknumber(data_recive->o3_temp));
+    json_append_member(sensors_data, "o3_hum", json_mknumber(data_recive->o3_hum));
+    json_append_member(sensors_data, "hcho", json_mknumber(data_recive->hcho));
+    json_append_member(sensors_data, "pm2_5", json_mknumber(data_recive->pm2_5));
+    json_append_member(sensors_data, "pm10", json_mknumber(data_recive->pm10));
 
     char *res = json_encode(message);
     json_delete(message);

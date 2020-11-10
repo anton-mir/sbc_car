@@ -21,8 +21,5 @@ char *generate_json_car(int id,
 			double humidity,
 			double co2,
 			double tvoc);
-char *generate_json_box(int id,
-			char *skin_name,
-			double lat,
-			double lon,
-            airc_box_dataPacket_S *data_recive);
+
+char *generate_json_box(airc_box_dataPacket_S *data_recive);

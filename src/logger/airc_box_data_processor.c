@@ -63,6 +63,17 @@ int airc_box_get_info(int airc_box_sock, char buf[], int buf_size, int *offset, 
             *offset = size;
             break;
         }
+        // AirC Device info
+        data_recive->device_id=((airc_box_dataPacket_S*)curr)->device_id;
+        data_recive->device_working_status=((airc_box_dataPacket_S*)curr)->device_working_status;
+        data_recive->device_message_counter=((airc_box_dataPacket_S*)curr)->device_message_counter;
+        strncpy(data_recive->device_type, ((airc_box_dataPacket_S*)curr)->device_type, 19);
+        strncpy(data_recive->device_description, ((airc_box_dataPacket_S*)curr)->device_description, 500);
+        strncpy(data_recive->message_date_time, ((airc_box_dataPacket_S*)curr)->message_date_time, 24);
+        data_recive->latitude=((airc_box_dataPacket_S*)curr)->latitude;
+        data_recive->longitude=((airc_box_dataPacket_S*)curr)->longitude;
+        data_recive->altitude=((airc_box_dataPacket_S*)curr)->altitude;
+        // Sensors data
         data_recive->temp=((airc_box_dataPacket_S*)curr)->temp;
         data_recive->humidity=((airc_box_dataPacket_S*)curr)->humidity;
         data_recive->co2=((airc_box_dataPacket_S*)curr)->co2;
