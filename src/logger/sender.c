@@ -66,18 +66,24 @@ char *generate_json_car(int id, char *skin_name, double lat, double lon, int spe
 
 char *generate_json_box(airc_box_dataPacket_S *data_recive)
 {
-    struct JsonNode *message = json_mkobject(), *sensors_data = json_mkobject();
+    struct JsonNode *message = json_mkobject(), *sensors_data = json_mkobject(), *airc_device_data = json_mkobject();
     // AirC device info
     json_append_member(message, "id", json_mknumber(data_recive->device_id));
-    json_append_member(message, "status", json_mknumber(data_recive->device_working_status));
-    json_append_member(message, "counter", json_mknumber(data_recive->device_message_counter));
     json_append_member(message, "type", json_mkstring(data_recive->device_type));
-    json_append_member(message, "description", json_mkstring(data_recive->device_description));
-    json_append_member(message, "date_time", json_mkstring(data_recive->message_date_time));
-    json_append_member(message, "latitude", json_mknumber(data_recive->latitude));
-    json_append_member(message, "longitude", json_mknumber(data_recive->longitude));
-    json_append_member(message, "altitude", json_mknumber(data_recive->altitude));
     json_append_member(message, "skin", json_mkstring("AirC_box"));
+
+    // AirC device info
+    json_append_member(message, "airc_device_data", airc_device_data);
+    json_append_member(airc_device_data, "id", json_mknumber(data_recive->device_id));
+    json_append_member(airc_device_data, "status", json_mknumber(data_recive->device_working_status));
+    json_append_member(airc_device_data, "counter", json_mknumber(data_recive->device_message_counter));
+    json_append_member(airc_device_data, "type", json_mkstring(data_recive->device_type));
+    json_append_member(airc_device_data, "description", json_mkstring(data_recive->device_description));
+    json_append_member(airc_device_data, "date_time", json_mkstring(data_recive->message_date_time));
+    json_append_member(airc_device_data, "latitude", json_mknumber(data_recive->latitude));
+    json_append_member(airc_device_data, "longitude", json_mknumber(data_recive->longitude));
+    json_append_member(airc_device_data, "altitude", json_mknumber(data_recive->altitude));
+
     // Sensors data
     json_append_member(message, "state", sensors_data);
     json_append_member(sensors_data, "temp", json_mknumber(data_recive->temp));
