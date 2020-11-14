@@ -86,6 +86,7 @@ char *generate_json_box(airc_box_dataPacket_S *data_recive)
 
     // Sensors data
     json_append_member(message, "state", sensors_data);
+    json_append_member(sensors_data, "temp_internal", json_mknumber(data_recive->temp_internal));
     json_append_member(sensors_data, "temp", json_mknumber(data_recive->temp));
     json_append_member(sensors_data, "humidity", json_mknumber(data_recive->humidity));
     json_append_member(sensors_data, "pressure", json_mknumber(data_recive->pressure));

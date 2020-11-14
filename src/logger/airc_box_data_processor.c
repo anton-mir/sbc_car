@@ -74,6 +74,7 @@ int airc_box_get_info(int airc_box_sock, char buf[], int buf_size, int *offset, 
         data_recive->longitude=((airc_box_dataPacket_S*)curr)->longitude;
         data_recive->altitude=((airc_box_dataPacket_S*)curr)->altitude;
         // Sensors data
+        data_recive->temp_internal=((airc_box_dataPacket_S*)curr)->temp_internal;
         data_recive->temp=((airc_box_dataPacket_S*)curr)->temp;
         data_recive->humidity=((airc_box_dataPacket_S*)curr)->humidity;
         data_recive->co2=((airc_box_dataPacket_S*)curr)->co2;
