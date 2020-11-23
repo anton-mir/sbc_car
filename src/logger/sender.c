@@ -76,7 +76,7 @@ char *generate_json_box(airc_box_dataPacket_S *data_recive)
     json_append_member(message, "airc_device_data", airc_device_data);
     json_append_member(airc_device_data, "id", json_mknumber(data_recive->device_id));
     json_append_member(airc_device_data, "status", json_mknumber(data_recive->device_working_status));
-    json_append_member(airc_device_data, "counter", json_mknumber(data_recive->device_message_counter));
+    json_append_member(airc_device_data, "message_counter", json_mknumber(data_recive->device_message_counter));
     json_append_member(airc_device_data, "type", json_mkstring(data_recive->device_type));
     json_append_member(airc_device_data, "description", json_mkstring(data_recive->device_description));
     json_append_member(airc_device_data, "date_time", json_mkstring(data_recive->message_date_time));
