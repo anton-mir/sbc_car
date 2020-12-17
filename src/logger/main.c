@@ -493,6 +493,10 @@ int main(int argc, char** argv) {
 			closeserial(obd_serial_port);
 			exit(1);
 		}
+		else
+        {
+            printf("\nRunning daemonised\n");
+        }
 	}
     #endif //OBDPLATFORM_POSIX
 
@@ -567,6 +571,11 @@ int main(int argc, char** argv) {
 	    {
             printf("\nairc_box: sock connected\n");
 	    }
+	    else
+        {
+            printf("\nAirc_box: not connected, exiting...\n");
+            return -2;
+        }
 	}
     #endif //AIRC_BOX_ENABLED
 

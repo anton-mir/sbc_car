@@ -13,7 +13,7 @@ int airc_box_connect(int *airc_box_sock, const char *ip, struct sockaddr_in *air
 {
     if ((*airc_box_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        printf("airc_box: socket creation error\n");
+        printf("\nAirc_box: socket creation error\n");
         return -1;
     }
 
@@ -22,13 +22,13 @@ int airc_box_connect(int *airc_box_sock, const char *ip, struct sockaddr_in *air
 
     if(inet_pton(AF_INET, ip, &(airc_box_sockaddr->sin_addr)) <= 0)
     {
-        printf("airc_box: invalid address\n");
+        printf("\nAirc_box: invalid address\n");
         return -2;
     }
 
     if(connect(*airc_box_sock, (struct sockaddr*)airc_box_sockaddr, sizeof(*airc_box_sockaddr)) < 0)
     {
-        printf("airc_box: connection failed\n");
+        printf("\nAirc_box: connection failed\n");
         return -3;
     }
 
