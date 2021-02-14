@@ -376,14 +376,14 @@ int main(int argc, char** argv) {
 #ifdef HAVE_GPSD
 	// Open the gps device
 	struct gps_data_t *gpsdata;
-
-    if(current_json_type!=box) {
+    printf("\nTRYING TO GET DATA FROM GPS\n");
+//    if(current_json_type!=box) {
         gpsdata = opengps(GPSD_ADDR, GPSD_PORT);
 
         if (NULL == gpsdata) {
-            fprintf(stderr, "Couldn't open gps port on startup.\n");
+            printf("Couldn't open gps port on startup.\n");
         } else {
-            fprintf(stderr, "Successfully connected to gpsd. Will log gps data\n");
+            printf("Successfully connected to gpsd. Will log gps data\n");
         }
 
 #endif //HAVE_GPSD
@@ -393,10 +393,10 @@ int main(int argc, char** argv) {
             && NULL == gpsdata
 #endif //HAVE_GPSD
                 ) {
-            fprintf(stderr, "Couldn't find either gps or obd to log. Exiting.\n");
+            printf("Couldn't find either gps or obd to log. Exiting.\n");
             exit(1);
         }
-    }
+//    }
 
 #ifdef HAVE_DBUS
 	obdinitialisedbus();
@@ -718,8 +718,8 @@ int main(int argc, char** argv) {
 
 		int gpsstatus = -1;
 
-		if (current_json_type != box)
-		{
+//		if (current_json_type != box)
+//		{
             if (NULL != gpsdata)
             {
                 gpsstatus = getgpsposition(gpsdata, &lat, &lon, &alt, &speed, &course, &gpstime);
@@ -740,7 +740,7 @@ int main(int argc, char** argv) {
                     time_lastgpscheck = time_insert;
                 }
             }
-        }
+//        }
 
 		if ((gpsstatus < 0 || NULL == gpsdata) && (current_json_type != box) )
 		{
@@ -890,13 +890,13 @@ int main(int argc, char** argv) {
 	closeserial(obd_serial_port);
 
 	#ifdef HAVE_GPSD
-	if (current_json_type != box)
-	{
+//	if (current_json_type != box)
+//	{
         if (gpsdata =! NULL)
         {
             gps_close(gpsdata);
         }
-    }
+//    }
     #endif //HAVE_GPSD
 
 	closedb(db);
