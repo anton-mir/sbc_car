@@ -371,36 +371,43 @@ int main(int argc, char** argv) {
             exit(0);
         }
 
-
-
-#ifdef HAVE_GPSD
+	#ifdef HAVE_GPSD
 	// Open the gps device
 	struct gps_data_t *gpsdata;
 
-    if(current_json_type!=box) {
+    if(current_json_type != box) 
+	{
+		printf("Reading GPS data...\n");
+		if (current_json_type == box) printf("Device type is BOX\n");
+		else printf("Device type %d\n", (int)current_json_type);
+
         gpsdata = opengps(GPSD_ADDR, GPSD_PORT);
 
-        if (NULL == gpsdata) {
+        if (NULL == gpsdata) 
+		{
             fprintf(stderr, "Couldn't open gps port on startup.\n");
-        } else {
+        } 
+		else 
+		{
             fprintf(stderr, "Successfully connected to gpsd. Will log gps data\n");
         }
-
-#endif //HAVE_GPSD
-
-        if (-1 == obd_serial_port
-            #ifdef HAVE_GPSD
-            && NULL == gpsdata
-#endif //HAVE_GPSD
-                ) {
-            fprintf(stderr, "Couldn't find either gps or obd to log. Exiting.\n");
-            exit(1);
-        }
+	#endif //HAVE_GPSD
+	if (obd_serial_port == -1
+		#ifdef HAVE_GPSD
+		&& NULL == gpsdata
+		#endif //HAVE_GPSD
+		) 
+	{
+		fprintf(stderr, "Couldn't find either gps or obd to log. Exiting.\n");
+		exit(1);
+	}
+	#ifdef HAVE_GPSD
     }
+	#endif //HAVE_GPSD
 
-#ifdef HAVE_DBUS
+	#ifdef HAVE_DBUS
 	obdinitialisedbus();
-#endif //HAVE_DBUS
+	#endif //HAVE_DBUS
 
 	// sqlite database
 	sqlite3 *db;
@@ -735,7 +742,7 @@ int main(int argc, char** argv) {
                     }
                     else
                     {
-                        // fprintf(stderr, "Delayed connection to gps failed\n");
+                        printf("Delayed connection to gps failed\n");
                     }
                     time_lastgpscheck = time_insert;
                 }
@@ -771,9 +778,12 @@ int main(int argc, char** argv) {
 			sqlite3_bind_double(gpsinsert, 5, course);
 			sqlite3_bind_double(gpsinsert, 6, gpstime);
 
-			if(spam_stdout)
+			if (spam_stdout)
 			{
-				printf("gpspos=%f,%f,%f,%f,%f\n",
+				if (current_json_type == box) printf("Device type is BOX\n");
+				else printf("Device type %d\n", (int)current_json_type);
+				printf("Gpsstatus = %d", gpsstatus);
+				printf("Gpspos=%f,%f,%f,%f,%f\n",
 					lat, lon, (gpsstatus>=1?alt:-1000.0), speed, course);
 			}
 
