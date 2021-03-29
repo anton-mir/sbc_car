@@ -33,13 +33,13 @@ SET(OBD_CONFIG_FILENAME ".obdgpslogger")
 SET(OBD_DEFAULT_COLUMNS "temp,rpm,vss,maf,throttlepos" CACHE STRING "Default columns to log")
 
 # This is the default serial port on my mac for my OBD Key
-SET(OBD_DEFAULT_SERIALPORT "/dev/cu.OBDKeyPro-DevB-1" CACHE STRING "Default serial port filename")
+SET(OBD_DEFAULT_SERIALPORT "/dev/gps0" CACHE STRING "Default serial port filename")
 
 # Only used by the UI when it launches GPSD, to add devices
 SET(OBD_GPSD_CONTROL_SOCKET "/tmp/obd_gpsd_controlsock" CACHE STRING "GPSD Control Socket (Used by UI)")
 
 # Only used by the UI when it launches GPSD, this is the default gps device
-SET(OBD_DEFAULT_GPSPORT "/dev/usbserial" CACHE STRING "GPSD default device filename (Used by UI)")
+SET(OBD_DEFAULT_GPSPORT "/dev/gps0" CACHE STRING "GPSD default device filename (Used by UI)")
 
 # Only used by the UI when it launches GPSD, to kill it afterwards
 SET(OBD_GPSD_PIDFILE "/tmp/obd_gpsd_pid" CACHE STRING "GPSD PID File (Used by UI)")
