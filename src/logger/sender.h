@@ -22,4 +22,4 @@ char *generate_json_car(int id,
 			double co2,
 			double tvoc);
 
-char *generate_json_box(airc_box_dataPacket_S *data_recive);
+char *generate_json_box(airc_box_dataPacket_S *data_recive, double lat, double lon);

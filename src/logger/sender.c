@@ -64,7 +64,7 @@ char *generate_json_car(int id, char *skin_name, double lat, double lon, int spe
     return res;
 }
 
-char *generate_json_box(airc_box_dataPacket_S *data_recive)
+char *generate_json_box(airc_box_dataPacket_S *data_recive, double lat_gps_sensor, double lon_gps_sensor)
 {
     struct JsonNode *message = json_mkobject(), *sensors_data = json_mkobject(), *airc_device_data = json_mkobject();
     // AirC device info
@@ -80,8 +80,22 @@ char *generate_json_box(airc_box_dataPacket_S *data_recive)
     json_append_member(airc_device_data, "type", json_mkstring(data_recive->device_type));
     json_append_member(airc_device_data, "description", json_mkstring(data_recive->device_description));
     json_append_member(airc_device_data, "date_time", json_mkstring(data_recive->message_date_time));
-    json_append_member(airc_device_data, "latitude", json_mknumber(data_recive->latitude));
-    json_append_member(airc_device_data, "longitude", json_mknumber(data_recive->longitude));
+    if (lat_gps_sensor > 0.0) // Use latitude from GPS sensor if it is attached and data available
+    {
+        json_append_member(airc_device_data, "latitude", json_mknumber(lat_gps_sensor));
+    }
+    else // Otherwise use latitude from AirC device (hardcoded)
+    {
+        json_append_member(airc_device_data, "latitude", json_mknumber(data_recive->latitude));
+    }
+    if (lon_gps_sensor > 0.0) // Use longitude from GPS sensor if it is attached and data available
+    {
+        json_append_member(airc_device_data, "longitude", json_mknumber(lon_gps_sensor));
+    }
+    else // Otherwise use longitude from AirC device (hardcoded)
+    {
+        json_append_member(airc_device_data, "longitude", json_mknumber(data_recive->longitude));
+    }
     json_append_member(airc_device_data, "altitude", json_mknumber(data_recive->altitude));
 
     // Sensors data

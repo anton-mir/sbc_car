@@ -663,7 +663,7 @@ int main(int argc, char** argv) {
 						printf("%s=%f\n", obdcmds_mode1[cmdlist[i]].db_column, val);
 					}
 					sqlite3_bind_double(obdinsert, i+1, (double)val);
-					// printf("cmd: %02X, val: %f\n",obdcmds_mode1[cmdlist[i]].cmdid,val);
+					printf("cmd: %02X, val: %f\n",obdcmds_mode1[cmdlist[i]].cmdid,val);
 				}
 				else
                 {
@@ -735,7 +735,7 @@ int main(int argc, char** argv) {
                     }
                     else
                     {
-                        // fprintf(stderr, "Delayed connection to gps failed\n");
+                        printf(stderr, "Delayed connection to gps failed\n");
                     }
                     time_lastgpscheck = time_insert;
                 }
@@ -771,10 +771,10 @@ int main(int argc, char** argv) {
 			sqlite3_bind_double(gpsinsert, 5, course);
 			sqlite3_bind_double(gpsinsert, 6, gpstime);
 
-			if(spam_stdout)
+			if (spam_stdout)
 			{
-				printf("gpspos=%f,%f,%f,%f,%f\n",
-					lat, lon, (gpsstatus>=1?alt:-1000.0), speed, course);
+				printf("Gpsstatus=%d, Gpspos: lat=%f, lon=%f, alt=%f, speed=%f, course=%f\n",
+                       gpsstatus, lat, lon, (gpsstatus>=1?alt:-1000.0), speed, course);
 			}
 
 			// Use time worked out before.
@@ -820,7 +820,7 @@ int main(int argc, char** argv) {
                     gen_json = generate_json_car(SBC_CAR_ID, SBC_CAR_SKIN, lat, lon, (int)(speed*3.6), course, rpm, xlgyro_obstacle, 0, 0, 0, 0);
                     break;
                 case box:
-                    gen_json = generate_json_box(&airc_box_data);
+                    gen_json = generate_json_box(&airc_box_data, lat, lon);
                     break;
                 case no_type:
                 default:
