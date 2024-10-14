@@ -61,7 +61,7 @@ along with obdgpslogger.  If not, see <http://www.gnu.org/licenses/>.
 #define SBC_CAR_DEF_IP      "127.0.0.1"
 #define SBC_CAR_REG_PORT    40880
 #define SBC_CAR_UNIT_PORT   40701
-char unit_port[5];
+char unit_port[6];
 #define SBC_CAR_ID          (1)
 #define SBC_CAR_SKIN        "car_white"
 
@@ -345,7 +345,7 @@ int main(int argc, char** argv) {
     {
 		fprintf(stderr, "Successfully connected to serial port. Will log obd data\n");
 	}
-
+	
         // Just figure out our car's OBD port capabilities and print them
         if (showcapabilities)
         {
@@ -371,8 +371,6 @@ int main(int argc, char** argv) {
             exit(0);
         }
 
-
-
 #ifdef HAVE_GPSD
 	// Open the gps device
 	struct gps_data_t *gpsdata;
@@ -386,24 +384,30 @@ int main(int argc, char** argv) {
             fprintf(stderr, "Successfully connected to gpsd. Will log gps data\n");
         }
 
-#endif //HAVE_GPSD
+
 
         if (-1 == obd_serial_port
-            #ifdef HAVE_GPSD
+
             && NULL == gpsdata
-#endif //HAVE_GPSD
+
                 ) {
             fprintf(stderr, "Couldn't find either gps or obd to log. Exiting.\n");
             exit(1);
         }
     }
+#endif //HAVE_GPSD	
+
+	if (-1 == obd_serial_port) {
+		fprintf(stderr, "Couldn't find either gps or obd to log. Exiting.\n");
+		exit(1);
+	}
 
 #ifdef HAVE_DBUS
 	obdinitialisedbus();
 #endif //HAVE_DBUS
 
 	// sqlite database
-	sqlite3 *db;
+	// sqlite3 *db_database_sqlite3;
 
 	// sqlite statement
 	sqlite3_stmt *obdinsert;
@@ -417,14 +421,15 @@ int main(int argc, char** argv) {
 	int obd_speed = 3;
 
 	// Open the database and create the obd table
-	if(NULL == (db = opendb(databasename))) {
+	sqlite3* db_database_sqlite3 = opendb(databasename);
+	if (db_database_sqlite3 == NULL) {
 		closeserial(obd_serial_port);
 		exit(1);
 	}
 
 	// Disable sqlite's synchronous pragma.
 	/* char *zErrMsg;
-	rc = sqlite3_exec(db, "PRAGMA synchronous=OFF",
+	rc = sqlite3_exec(db_database_sqlite3, "PRAGMA synchronous=OFF",
 					NULL, NULL, &zErrMsg);
 	if(rc != SQLITE_OK) {
 		printf("SQLite error %i: %s\n", rc, zErrMsg);
@@ -440,17 +445,18 @@ int main(int argc, char** argv) {
 	obd_freeConfigCmds(wishlist_cmds);
 	wishlist_cmds=NULL;
 
-	createobdtable(db,obdcaps);
+	createobdtable(db_database_sqlite3,obdcaps);
+	obdnumcols = createobdinsertstmt(db_database_sqlite3,&obdinsert, obdcaps);
 	// Create the insert statement. On success, we'll have the number of columns
-	if(0 == (obdnumcols = createobdinsertstmt(db,&obdinsert, obdcaps)) || NULL == obdinsert) {
-		closedb(db);
+	if ((0 == obdnumcols) || NULL == obdinsert) {
+		closedb(db_database_sqlite3);
 		closeserial(obd_serial_port);
 		exit(1);
 	}
 
-	createtriptable(db);
+	createtriptable(db_database_sqlite3);
 
-	createecutable(db);
+	createecutable(db_database_sqlite3);
 
 	// All of these have obdnumcols-1 since the last column is time
 	int cmdlist[obdnumcols-1]; // Commands to send [index into obdcmds_mode1]
@@ -478,10 +484,10 @@ int main(int argc, char** argv) {
 	// number of columns in the insert
 	int gpsnumcols;
 
-	creategpstable(db);
+	creategpstable(db_database_sqlite3);
 
-	if(0 == (gpsnumcols = creategpsinsertstmt(db, &gpsinsert) || NULL == gpsinsert)) {
-		closedb(db);
+	if(0 == (gpsnumcols = creategpsinsertstmt(db_database_sqlite3, &gpsinsert) || NULL == gpsinsert)) {
+		closedb(db_database_sqlite3);
 		closeserial(obd_serial_port);
 		exit(1);
 	}
@@ -528,7 +534,7 @@ int main(int argc, char** argv) {
 	// Store a few seconds worth of samples per transaction
 	int transactioncount = 0;
 
-	obdbegintransaction(db);
+	obdbegintransaction(db_database_sqlite3);
 
     int client_socket = 0;
     const char *reg_ip = SBC_CAR_DEF_IP;
@@ -606,7 +612,7 @@ int main(int argc, char** argv) {
 			switch(msg_ret) {
 				case OBD_DBUS_STARTTRIP:
 					if(!ontrip) {
-						currenttrip = starttrip(db, time_insert);
+						currenttrip = starttrip(db_database_sqlite3, time_insert);
 						fprintf(stderr,"Created a new trip (%i)\n", (int)currenttrip);
 						ontrip = 1;
 					}
@@ -625,10 +631,10 @@ int main(int argc, char** argv) {
 			if (ontrip)
 			{
 				fprintf(stderr,"Ending current trip\n");
-				updatetrip(db, currenttrip, time_insert);
+				updatetrip(db_database_sqlite3, currenttrip, time_insert);
 				ontrip = 0;
 			}
-			currenttrip = starttrip(db, time_insert);
+			currenttrip = starttrip(db_database_sqlite3, time_insert);
 			fprintf(stderr,"Created a new trip (%i)\n", (int)currenttrip);
 			ontrip = 1;
 			sig_starttrip = 0;
@@ -677,7 +683,7 @@ int main(int argc, char** argv) {
 				if (0 == ontrip)
 				{
 					printf("Creating a new trip\n");
-					currenttrip = starttrip(db, time_insert);
+					currenttrip = starttrip(db_database_sqlite3, time_insert);
 					ontrip = 1;
 				}
 				sqlite3_bind_double(obdinsert, i+1, time_insert);
@@ -688,7 +694,7 @@ int main(int argc, char** argv) {
 
 				if(SQLITE_DONE != rc)
 				{
-					printf("sqlite3 obd insert failed(%i): %s\n", rc, sqlite3_errmsg(db));
+					printf("sqlite3 obd insert failed(%i): %s\n", rc, sqlite3_errmsg(db_database_sqlite3));
 				}
 			}
 			else if (OBD_ERROR == obdstatus)
@@ -702,7 +708,7 @@ int main(int argc, char** argv) {
 				if (ontrip)
 				{
 					printf("Ending current trip\n");
-					updatetrip(db, currenttrip, time_insert);
+					updatetrip(db_database_sqlite3, currenttrip, time_insert);
 					ontrip = 0;
 				}
 			}
@@ -710,7 +716,7 @@ int main(int argc, char** argv) {
 		}
 
 		// Constantly update the trip
-		updatetrip(db, currenttrip, time_insert);
+		updatetrip(db_database_sqlite3, currenttrip, time_insert);
 
 #ifdef HAVE_GPSD
 		// Get the GPS data
@@ -788,7 +794,7 @@ int main(int argc, char** argv) {
 
 			if (SQLITE_DONE != rc)
 			{
-				printf("sqlite3 gps insert failed(%i): %s\n", rc, sqlite3_errmsg(db));
+				printf("sqlite3 gps insert failed(%i): %s\n", rc, sqlite3_errmsg(db_database_sqlite3));
 			}
 
 			sqlite3_reset(gpsinsert);
@@ -852,8 +858,8 @@ int main(int argc, char** argv) {
 
 		if (transactioncount == 0)
 		{
-			obdcommittransaction(db);
-			obdbegintransaction(db);
+			obdcommittransaction(db_database_sqlite3);
+			obdbegintransaction(db_database_sqlite3);
 		}
 
 		// usleep() not as portable as select()
@@ -876,11 +882,11 @@ int main(int argc, char** argv) {
 		}
 	} // end of while(...) receiving data cycle
 
-	obdcommittransaction(db);
+	obdcommittransaction(db_database_sqlite3);
 
 	if(0 != ontrip)
 	{
-		updatetrip(db, currenttrip, time_insert);
+		updatetrip(db_database_sqlite3, currenttrip, time_insert);
 		ontrip = 0;
 	}
 
@@ -899,7 +905,7 @@ int main(int argc, char** argv) {
     }
     #endif //HAVE_GPSD
 
-	closedb(db);
+	closedb(db_database_sqlite3);
 
 	if (enable_seriallog)
 	{
@@ -968,7 +974,7 @@ void printhelp(const char *argv0) {
 				"   [-B|--modifybaud <number>]\n"
 				"   [-l|--serial-log <filename>]\n"
 				"   [-a|--samplerate [1]]\n"
-				"   [-d|--db <" OBD_DEFAULT_DATABASE ">]\n"
+				"   [-d|--db_database_sqlite3 <" OBD_DEFAULT_DATABASE ">]\n"
                 "   [-D|--airc-box-ip <IP>]\n"
 				"   [-v|--version] [-h|--help]\n", argv0);
 }
