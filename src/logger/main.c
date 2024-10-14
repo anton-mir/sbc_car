@@ -974,7 +974,7 @@ void printhelp(const char *argv0) {
 				"   [-B|--modifybaud <number>]\n"
 				"   [-l|--serial-log <filename>]\n"
 				"   [-a|--samplerate [1]]\n"
-				"   [-d|--db_database_sqlite3 <" OBD_DEFAULT_DATABASE ">]\n"
+				"   [-d|--db <" OBD_DEFAULT_DATABASE ">]\n"
                 "   [-D|--airc-box-ip <IP>]\n"
 				"   [-v|--version] [-h|--help]\n", argv0);
 }
